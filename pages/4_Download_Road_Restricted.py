@@ -33,7 +33,7 @@ def download_restricted_areas(place):
 def download_restricted_roads(place):
     tags = {
         "access": ["private", "no", "military", "customers", "permit"],
-        "highway": ["service", "track", "motorway", "road", "motorway_link", "residential"],
+        "highway": ["service"],
         "service": True,
         "barrier": ["gate", "fence", "bollard"],
         "military": True,
