@@ -3,13 +3,34 @@ import osmnx as ox
 import geopandas as gpd
 import io
 
-def download_restricted_roads(place_name):
-    """
-    Download restricted roads for a given place from OSM.
-    Returns: GeoDataFrame and buffer of GeoJSON
-    """
+st.title("🗺️ Restricted Area & Road Downloader")
 
-    # Define OSM filter tags for restricted roads
+# 👉 Input nama wilayah (berlaku global untuk semua tombol)
+place_name = st.text_input("Enter a place name", value="Palembang, Indonesia")
+
+# Fungsi: Download area terbatas (Polygon)
+def download_restricted_areas(place):
+    tags = {
+        "landuse": ["military", "industrial", "commercial", "government", "reservoir",
+                    "protected_area", "forest", "cemetery", "landfill"],
+        "access": ["private", "customers", "permit", "military", "no"],
+        "military": True,
+        "building": ["government", "warehouse", "military", "university"],
+        "barrier": ["fence", "wall", "gates", "bollard"],
+        "amenity": ["school", "college", "university", "police", "hospital", "kindergarten"],
+        "leisure": ["golf_course"],
+        "aeroway": ["airport"],
+        "tourism": ["forest"]
+    }
+    gdf = ox.features.features_from_place(place, tags=tags)
+    gdf = gdf[gdf.geometry.type.isin(["Polygon", "MultiPolygon"])]
+    buffer = io.BytesIO()
+    gdf.to_file(buffer, driver="GeoJSON")
+    buffer.seek(0)
+    return gdf, buffer
+
+# Fungsi: Download jalan terbatas (LineString)
+def download_restricted_roads(place):
     tags = {
         "access": ["private", "no", "military", "customers", "permit"],
         "highway": True,
@@ -18,39 +39,39 @@ def download_restricted_roads(place_name):
         "military": True,
         "landuse": ["military", "industrial", "government"]
     }
-
-    # Query OSM data with OSMnx
-    gdf = ox.features.features_from_place(place_name, tags=tags)
-
-    # Filter only linestrings or multilinestrings
+    gdf = ox.features.features_from_place(place, tags=tags)
     gdf = gdf[gdf.geometry.type.isin(["LineString", "MultiLineString"])]
-
-    # Save to in-memory GeoJSON
     buffer = io.BytesIO()
     gdf.to_file(buffer, driver="GeoJSON")
     buffer.seek(0)
-
     return gdf, buffer
 
-if st.button("🚧 Download Road Restricted GeoJSON"):
+# --- Tombol 1: Area ---
+if st.button("🔍 Download Restricted Areas (GeoJSON)"):
     try:
-        st.info("📦 Downloading restricted roads data...")
+        st.info("Fetching restricted areas...")
+        gdf_area, buffer_area = download_restricted_areas(place_name)
+        st.success(f"✅ {len(gdf_area)} restricted areas found")
+        st.download_button("⬇️ Download Areas", buffer_area, "restricted_areas.geojson", "application/geo+json")
+        # Centroid map
+        gdf_area = gdf_area.to_crs(epsg=4326)
+        gdf_area["lon"] = gdf_area.geometry.centroid.x
+        gdf_area["lat"] = gdf_area.geometry.centroid.y
+        st.map(gdf_area[["lat", "lon"]])
+    except Exception as e:
+        st.error(f"❌ Error: {e}")
+
+# --- Tombol 2: Road ---
+if st.button("🚧 Download Restricted Roads (GeoJSON)"):
+    try:
+        st.info("Fetching restricted roads...")
         gdf_roads, buffer_roads = download_restricted_roads(place_name)
-
-        st.success(f"✅ Found {len(gdf_roads)} restricted road segments")
-
-        st.download_button(
-            label="⬇️ Download Road Restricted GeoJSON",
-            data=buffer_roads,
-            file_name="restricted_roads.geojson",
-            mime="application/geo+json"
-        )
-
-        # Show map (centroid for simplicity)
+        st.success(f"✅ {len(gdf_roads)} restricted roads found")
+        st.download_button("⬇️ Download Roads", buffer_roads, "restricted_roads.geojson", "application/geo+json")
+        # Centroid map
         gdf_roads = gdf_roads.to_crs(epsg=4326)
         gdf_roads["lon"] = gdf_roads.geometry.centroid.x
         gdf_roads["lat"] = gdf_roads.geometry.centroid.y
         st.map(gdf_roads[["lat", "lon"]])
-
     except Exception as e:
         st.error(f"❌ Error: {e}")
