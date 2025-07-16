@@ -1,3 +1,13 @@
+import streamlit as st
+
+st.set_page_config(
+    page_title="Analyst Gap Justification",
+    page_icon="🌍",
+    initial_sidebar_state="expanded"
+)
+
+st.title("🛠️ Analyst Gap Justification")
+
 st.markdown("""
 ### 🔍 Overview
 
