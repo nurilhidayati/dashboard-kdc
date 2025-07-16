@@ -1,9 +1,11 @@
 import streamlit as st
 import geopandas as gpd
+import pandas as pd
 import io
 
 st.title("🛣️ Select Roads Intersecting Restricted Areas")
 
+# Fungsi utama
 def select_restricted_roads(gdf_roads, gdf_polygons, gdf_lines=None, distance_meters=100.0):
     # Convert to projected CRS (UTM) for distance calculation
     if gdf_roads.crs.is_geographic:
@@ -17,9 +19,9 @@ def select_restricted_roads(gdf_roads, gdf_polygons, gdf_lines=None, distance_me
     buffered_polygons = gdf_polygons.buffer(distance_meters)
     buffered_polygons_gdf = gpd.GeoDataFrame(geometry=buffered_polygons, crs=gdf_polygons.crs)
 
-    # Combine with line (if provided)
+    # Gabungkan buffered polygon dan line (jika ada)
     if gdf_lines is not None:
-        combined_geometry = buffered_polygons_gdf.geometry.append(gdf_lines.geometry)
+        combined_geometry = pd.concat([buffered_polygons_gdf.geometry, gdf_lines.geometry], ignore_index=True)
         all_combined = gpd.GeoDataFrame(geometry=combined_geometry, crs=buffered_polygons_gdf.crs)
     else:
         all_combined = buffered_polygons_gdf
@@ -37,6 +39,7 @@ uploaded_polygons = st.file_uploader("📤 Upload Restricted Area (Polygon GeoJS
 uploaded_lines = st.file_uploader("📤 Optional: Upload Barrier Lines (GeoJSON)", type=["geojson"])
 distance = st.slider("📏 Distance buffer for polygons (meters)", 10, 1000, 100, step=10)
 
+# Proses setelah upload
 if uploaded_roads and uploaded_polygons:
     try:
         gdf_roads = gpd.read_file(uploaded_roads)
@@ -48,7 +51,7 @@ if uploaded_roads and uploaded_polygons:
 
         st.success(f"✅ Found {len(selected_roads)} intersecting roads.")
 
-        # Add for mapping
+        # Map preview
         selected_roads["lon"] = selected_roads.geometry.centroid.x
         selected_roads["lat"] = selected_roads.geometry.centroid.y
         st.map(selected_roads[["lat", "lon"]])
