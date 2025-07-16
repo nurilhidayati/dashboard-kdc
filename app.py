@@ -1,58 +1,81 @@
-import streamlit as st
-
-st.set_page_config(
-    page_title="Analyst Gap Justification",
-    page_icon="🌍",
-    initial_sidebar_state="expanded"
-)
-
-st.title("🛠️ Analyst Gap Justification")
-
 st.markdown("""
 ### 🔍 Overview
 
-**Analyst Gap Justification** is a web-based geospatial tool built with Streamlit to support the identification and analysis of road segments near or inside restricted zones. This tool helps process coordinate data, visualize road geometry, retrieve restricted areas from OpenStreetMap, and conduct spatial intersection analysis.
+**Analyst Gap Justification** is a web-based geospatial tool built with Streamlit.  
+It helps analyze road segments that may pass through **restricted zones** by letting you:
+
+- Upload and clean coordinate data
+- Visualize road geometry on a map
+- Download restricted areas from OpenStreetMap (OSM)
+- Run spatial analysis to find overlaps
 
 ---
 
-### 🔄 Workflow
+### 🔄 Workflow Steps
 
 **✅ Step 1: Flatten Coordinates**  
-Raw coordinate data is often grouped like this:  
+Raw coordinate data often looks like this:  
 `[[(104.75, -2.97), (104.76, -2.96)]]`  
-This format stores multiple points in a single cell, making it hard to process and visualize.
 
-**Why Flattening Is Needed:**  
-- Converts grouped coordinates into one row per point  
-- Prepares the data for creating line shapes (polylines)  
-- Helps identify missing or incorrect points  
+This format stores multiple coordinates in one row, making them hard to use.
 
-**Simple Analogy:**  
-Imagine drawing a road. If all the points are jumbled together, it's hard to follow.  
-But if each point is listed clearly, it becomes easier to connect them into a road.
+**Why this matters:**  
+- Breaks grouped points into one row per coordinate  
+- Prepares data for drawing roads  
+- Makes it easier to spot missing or incorrect points  
 
-To begin, upload a CSV file with grouped coordinates. The tool will flatten the data to make it ready for the next steps.
+**Analogy:**  
+Imagine a tangled string of dots — this step lays them out clearly so you can connect them.
+
+📥 Start by uploading a CSV file containing grouped coordinates.
 
 ---
 
 **✏️ Step 2: Convert to Polylines**  
-The cleaned points are grouped by segment and transformed into continuous lines (polylines) that represent road paths. These are saved in GeoJSON format for further use.
+After flattening, each road is still just a list of dots.  
+We now **connect the dots** to form visible road paths.
+
+**Why this matters:**  
+- Transforms points into lines (polylines)  
+- Allows roads to be displayed on a map  
+- Essential for checking if roads cross restricted areas  
+
+**Analogy:**  
+Dots A → B → C are just locations — but connecting them creates an actual road.
 
 ---
 
-**🌍 Step 3: Download Restricted Areas and Restricted Roads**  
-The application retrieves restricted areas (e.g., military zones, industrial sites, government buildings) and restricted roads (e.g., private or limited-access) from OpenStreetMap in GeoJSON format.
+**🌍 Step 3: Download Restricted Areas**  
+This step fetches restricted zones from OpenStreetMap, such as:
+- 🚫 Military or industrial zones  
+- 🛣️ Roads with private or limited access  
+
+**Why this matters:**  
+- Adds background layers for spatial comparison  
+- Tells the tool where roads **shouldn't** go  
+
+**Analogy:**  
+Before planning your route, you need to know where entry is not allowed.  
+This step maps those "no-go zones."
 
 ---
 
-**🚧 Step 4: Intersect with Restricted Zones**  
-Uploaded road data is compared with restricted layers. Any road segments that intersect or fall within a specified buffer distance are extracted into a filtered result for analysis.
+**🚧 Step 4: Find Intersections**  
+Now we check: do any roads **intersect** with restricted zones?
+
+**Why this matters:**  
+- Highlights road segments inside or near restricted areas  
+- Helps avoid routing errors or violations  
+- Produces a clean GeoJSON output for further use
+
+**Analogy:**  
+Think of it as drawing a red flag where a road touches a danger zone.
 
 ---
 
 ### 💬 Contact & Credits
 
 📩 **Slack contact:** `nuril.hidayati`  
-👥 **Project team:** ID Karta IoT Team – 2025  
-🙏 **Special thanks to:** Qitfirul, Mahardi Pratomo, Annisa Dwi Maiikhsantiani, and Mochammad Fachri
+👥 **Project Team:** ID Karta IoT – 2025  
+🙏 **Thanks to:** Qitfirul, Mahardi Pratomo, Annisa Dwi Maiikhsantiani, and Mochammad Fachri
 """)
