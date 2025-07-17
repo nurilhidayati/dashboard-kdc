@@ -10,7 +10,7 @@ st.set_page_config(page_title="Flatten Coordinates", layout="centered")
 if "processed_data" not in st.session_state:
     st.session_state.processed_data = None
 if "file_name_input" not in st.session_state:
-    st.session_state.file_name_input = "flattened_coordinates.csv"
+    st.session_state.file_name_input = ""
 
 def flatten_coordinates_from_file(uploaded_file, batch_size=1000):
     try:
