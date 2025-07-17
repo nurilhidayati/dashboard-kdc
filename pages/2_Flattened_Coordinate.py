@@ -10,9 +10,9 @@ st.set_page_config(page_title="Flatten Coordinates", layout="centered")
 for key, default in {
     "processed_data": None,
     "file_name_input": "",
-    "is_processing": False,
+    "is_processing": True,
     "last_uploaded_file_name": None,
-    "is_done": False,
+    "is_done": True,
 }.items():
     if key not in st.session_state:
         st.session_state[key] = default
