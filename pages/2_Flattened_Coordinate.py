@@ -6,7 +6,7 @@ from io import StringIO
 
 st.set_page_config(page_title="Flatten Coordinates", layout="centered")
 
-# ✅ INIT SESSION STATE
+# --- INIT SESSION STATE ---
 if "processed_data" not in st.session_state:
     st.session_state.processed_data = None
 if "file_name_input" not in st.session_state:
@@ -18,12 +18,11 @@ if "last_uploaded_file_name" not in st.session_state:
 if "is_done" not in st.session_state:
     st.session_state.is_done = False
 
-# --- Streamlit UI ---
 st.title("🗺️ Flatten Coordinates CSV")
 
 uploaded_file = st.file_uploader("📂 Upload your CSV file", type=["csv"])
 
-# Reset state properly
+# Reset state if no file uploaded or file changed
 if uploaded_file is None:
     st.session_state.processed_data = None
     st.session_state.is_processing = False
@@ -36,7 +35,6 @@ else:
         st.session_state.is_processing = False
         st.session_state.is_done = False
 
-# --- Core Processing Function ---
 def flatten_coordinates_from_file(uploaded_file, batch_size=1000):
     try:
         st.session_state.is_processing = True
@@ -57,6 +55,7 @@ def flatten_coordinates_from_file(uploaded_file, batch_size=1000):
                 for row in reader:
                     try:
                         coords_data = ast.literal_eval(row["road_coordinates"])
+                        # If it's a single segment (list of coords), wrap it in a list
                         if coords_data and isinstance(coords_data[0][0], (int, float)):
                             coords_data = [coords_data]
 
@@ -84,52 +83,51 @@ def flatten_coordinates_from_file(uploaded_file, batch_size=1000):
         df = pd.DataFrame(output_rows)
         st.session_state.processed_data = df
         st.session_state.is_done = True
-        st.dataframe(df)
 
     except Exception as e:
         st.error(f"❌ Unexpected error occurred: {e}")
     finally:
         st.session_state.is_processing = False
 
-# --- Input file name & Start Button ---
-# Add this CSS to make the button float bottom-right
-# --- Input file name & Start Button ---
-st.markdown(
-    """
-    <style>
-    .float-btn {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        z-index: 1000;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+# CSS for floating button bottom-right
+st.markdown("""
+<style>
+.float-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000;
+}
+</style>
+""", unsafe_allow_html=True)
 
 if uploaded_file:
     st.text_input("📄 Enter output file name:", key="file_name_input")
 
-    # Show floating start button ONLY if no processed data yet
+    # Show floating start button ONLY if not processing and no data processed yet
     if st.session_state.processed_data is None and not st.session_state.is_processing:
-        btn_placeholder = st.empty()
-        with btn_placeholder.container():
+        with st.container():
             st.markdown('<div class="float-btn">', unsafe_allow_html=True)
             if st.button("🔄 Start Flattening"):
                 flatten_coordinates_from_file(uploaded_file)
             st.markdown('</div>', unsafe_allow_html=True)
-    
-    if st.session_state.processed_data is not None and not st.session_state.is_processing:
-        file_name = st.session_state.file_name_input.strip()
-    if not file_name:
-        file_name = "flattened_coordinates"
-    if not file_name.lower().endswith(".csv"):
-        file_name += ".csv"
 
-    st.download_button(
-        label="📥 Download CSV",
-        data=st.session_state.processed_data.to_csv(index=False).encode("utf-8"),
-        file_name=file_name,
-        mime="text/csv"
-    )
+    # Show dataframe and download button if processed and not processing
+    if st.session_state.processed_data is not None and not st.session_state.is_processing:
+        st.dataframe(st.session_state.processed_data)
+
+        file_name = st.session_state.file_name_input.strip()
+        if not file_name:
+            file_name = "flattened_coordinates"
+        if not file_name.lower().endswith(".csv"):
+            file_name += ".csv"
+
+        st.download_button(
+            label="📥 Download CSV",
+            data=st.session_state.processed_data.to_csv(index=False).encode("utf-8"),
+            file_name=file_name,
+            mime="text/csv",
+            key="download-csv"
+        )
+else:
+    st.info("Please upload a CSV file to start.")
