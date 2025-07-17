@@ -23,7 +23,7 @@ def generate_download_link(df, filename="filtered_data.csv"):
 st.title("📍 Split CSV by City Name from grid_id")
 
 uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
-city_name = st.text_input("Enter City Name (e.g., Bangkok)")
+city_name = st.text_input("Enter City Name (e.g., Jakarta)")
 
 if uploaded_file and city_name:
     df = pd.read_csv(uploaded_file)
