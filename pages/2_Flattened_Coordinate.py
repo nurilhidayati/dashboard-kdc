@@ -10,10 +10,13 @@ st.set_page_config(page_title="Flatten Coordinates", layout="centered")
 if "processed_data" not in st.session_state:
     st.session_state.processed_data = None
 if "file_name_input" not in st.session_state:
-    st.session_state.file_name_input = ""
+    st.session_state.file_name_input = "flattened_coordinates.csv"
+if "is_processing" not in st.session_state:
+    st.session_state.is_processing = False
 
 def flatten_coordinates_from_file(uploaded_file, batch_size=1000):
     try:
+        st.session_state.is_processing = True  # Set flag for UI message
         output_rows = []
 
         content = uploaded_file.getvalue().decode('utf-8')
@@ -61,6 +64,8 @@ def flatten_coordinates_from_file(uploaded_file, batch_size=1000):
 
     except Exception as e:
         st.error(f"❌ Unexpected error occurred: {e}")
+    finally:
+        st.session_state.is_processing = False
 
 
 # --- Streamlit UI ---
@@ -68,22 +73,24 @@ st.title("🗺️ Flatten Coordinates CSV")
 
 uploaded_file = st.file_uploader("📂 Upload your CSV file", type=["csv"])
 
-# Reset state when a new file is uploaded
+# Reset state when new file uploaded
 if uploaded_file:
     st.session_state.processed_data = None
+    st.session_state.is_processing = False  # Reset processing state
 
 if uploaded_file:
     st.text_input("📄 Enter output file name:", value=st.session_state.file_name_input, key="file_name_input")
 
     if st.button("🔄 Start Flattening"):
+        st.markdown("⏳ **Processing... Please wait.**")
         flatten_coordinates_from_file(uploaded_file)
 
-# Show download button if data already processed
-if st.session_state.processed_data is not None:
+# Show download button if processing is done
+if st.session_state.processed_data is not None and not st.session_state.is_processing:
     csv_data = st.session_state.processed_data.to_csv(index=False).encode("utf-8")
     st.download_button(
         label="📥 Download Flattened CSV",
         data=csv_data,
-        file_name=st.session_state.file_name_input if st.session_state.file_name_input else "flattened_coordinates.csv",
+        file_name=st.session_state.file_name_input or "flattened_coordinates.csv",
         mime="text/csv"
     )
