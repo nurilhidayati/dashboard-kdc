@@ -7,10 +7,22 @@ from io import StringIO
 st.set_page_config(page_title="Flatten Coordinates", layout="centered")
 
 # --- Init Session State ---
+import streamlit as st
+import pandas as pd
+import csv
+import ast
+from io import StringIO
+
+st.set_page_config(page_title="Flatten Coordinates", layout="centered")
+
+# ✅ INIT: PASTIKAN INI DULUAN
 if "processed_data" not in st.session_state:
     st.session_state.processed_data = None
+if "file_name_input" not in st.session_state:
+    st.session_state.file_name_input = "flattened_coordinates"
 if "is_processing" not in st.session_state:
     st.session_state.is_processing = False
+
 
 # --- Core Processing Function ---
 def flatten_coordinates_from_file(uploaded_file, batch_size=1000):
