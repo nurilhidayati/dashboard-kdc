@@ -6,17 +6,16 @@ from io import StringIO
 
 st.set_page_config(page_title="Flatten Coordinates", layout="centered")
 
-# Session state to persist download state
+# --- Init Session State ---
 if "processed_data" not in st.session_state:
     st.session_state.processed_data = None
-if "file_name_input" not in st.session_state:
-    st.session_state.file_name_input = "flattened_coordinates.csv"
 if "is_processing" not in st.session_state:
     st.session_state.is_processing = False
 
+# --- Core Processing Function ---
 def flatten_coordinates_from_file(uploaded_file, batch_size=1000):
     try:
-        st.session_state.is_processing = True  # Set flag for UI message
+        st.session_state.is_processing = True  # Set processing flag
         output_rows = []
 
         content = uploaded_file.getvalue().decode('utf-8')
@@ -76,8 +75,9 @@ uploaded_file = st.file_uploader("📂 Upload your CSV file", type=["csv"])
 # Reset state when new file uploaded
 if uploaded_file:
     st.session_state.processed_data = None
-    st.session_state.is_processing = False  # Reset processing state
+    st.session_state.is_processing = False
 
+# Input for output file name
 if uploaded_file:
     st.text_input("📄 Enter output file name:", value=st.session_state.file_name_input, key="file_name_input")
 
@@ -85,12 +85,18 @@ if uploaded_file:
         st.markdown("⏳ **Processing... Please wait.**")
         flatten_coordinates_from_file(uploaded_file)
 
-# Show download button if processing is done
+# --- Show download button if ready ---
 if st.session_state.processed_data is not None and not st.session_state.is_processing:
     csv_data = st.session_state.processed_data.to_csv(index=False).encode("utf-8")
+
+    # Ensure .csv is included
+    file_name = st.session_state.file_name_input.strip()
+    if not file_name.lower().endswith(".csv"):
+        file_name += ".csv"
+
     st.download_button(
         label="📥 Download Flattened CSV",
         data=csv_data,
-        file_name=st.session_state.file_name_input or "flattened_coordinates.csv",
+        file_name=file_name,
         mime="text/csv"
     )
