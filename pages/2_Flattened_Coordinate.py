@@ -93,6 +93,7 @@ def flatten_coordinates_from_file(uploaded_file, batch_size=1000):
 
 # --- Input file name & Start Button ---
 # Add this CSS to make the button float bottom-right
+# --- Input file name & Start Button ---
 st.markdown(
     """
     <style>
@@ -107,12 +108,11 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Then render the button inside a div with class "float-btn"
 if uploaded_file:
     st.text_input("📄 Enter output file name:", key="file_name_input")
 
+    # Show floating start button ONLY if no processed data yet
     if st.session_state.processed_data is None and not st.session_state.is_processing:
-        # Use markdown + button inside a div with class float-btn
         btn_placeholder = st.empty()
         with btn_placeholder.container():
             st.markdown('<div class="float-btn">', unsafe_allow_html=True)
@@ -120,9 +120,7 @@ if uploaded_file:
                 flatten_coordinates_from_file(uploaded_file)
             st.markdown('</div>', unsafe_allow_html=True)
 
-
-
-# --- Show download button and Done message ---
+# --- Show download button ---
 if st.session_state.processed_data is not None and not st.session_state.is_processing:
     file_name = st.session_state.file_name_input.strip()
     if not file_name:
@@ -136,4 +134,3 @@ if st.session_state.processed_data is not None and not st.session_state.is_proce
         file_name=file_name,
         mime="text/csv"
     )
-
