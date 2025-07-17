@@ -119,10 +119,9 @@ if uploaded_file:
             if st.button("🔄 Start Flattening"):
                 flatten_coordinates_from_file(uploaded_file)
             st.markdown('</div>', unsafe_allow_html=True)
-
-# --- Show download button ---
-if st.session_state.processed_data is not None and not st.session_state.is_processing:
-    file_name = st.session_state.file_name_input.strip()
+    
+    if st.session_state.processed_data is not None and not st.session_state.is_processing:
+        file_name = st.session_state.file_name_input.strip()
     if not file_name:
         file_name = "flattened_coordinates"
     if not file_name.lower().endswith(".csv"):
