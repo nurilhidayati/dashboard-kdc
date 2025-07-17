@@ -15,11 +15,14 @@ if "is_processing" not in st.session_state:
     st.session_state.is_processing = False
 if "last_uploaded_file_name" not in st.session_state:
     st.session_state.last_uploaded_file_name = None
+if "is_done" not in st.session_state:
+    st.session_state.is_done = False
 
 # --- Core Processing Function ---
 def flatten_coordinates_from_file(uploaded_file, batch_size=1000):
     try:
         st.session_state.is_processing = True
+        st.session_state.is_done = False  # Reset done flag
         output_rows = []
 
         content = uploaded_file.getvalue().decode('utf-8')
@@ -62,14 +65,13 @@ def flatten_coordinates_from_file(uploaded_file, batch_size=1000):
 
         df = pd.DataFrame(output_rows)
         st.session_state.processed_data = df
-        st.success("✅ Done! Flattened successfully.")
+        st.session_state.is_done = True  # Set done flag
         st.dataframe(df)
 
     except Exception as e:
         st.error(f"❌ Unexpected error occurred: {e}")
     finally:
         st.session_state.is_processing = False
-
 
 # --- Streamlit UI ---
 st.title("🗺️ Flatten Coordinates CSV")
@@ -81,6 +83,7 @@ if uploaded_file:
     if uploaded_file.name != st.session_state.last_uploaded_file_name:
         st.session_state.processed_data = None
         st.session_state.is_processing = False
+        st.session_state.is_done = False
         st.session_state.last_uploaded_file_name = uploaded_file.name
 
 # Input for output file name
@@ -88,14 +91,10 @@ if uploaded_file:
     st.text_input("📄 Enter output file name:", key="file_name_input")
 
     if st.button("🔄 Start Flattening"):
-        st.markdown("⏳ **Processing... Please wait.**")
         flatten_coordinates_from_file(uploaded_file)
 
-# --- Show download button if ready ---
+# --- Show download button and status ---
 if st.session_state.processed_data is not None and not st.session_state.is_processing:
-    csv_data = st.session_state.processed_data.to_csv(index=False).encode("utf-8")
-
-    # Get cleaned file name with .csv
     file_name = st.session_state.file_name_input.strip()
     if not file_name:
         file_name = "flattened_coordinates"
@@ -104,7 +103,11 @@ if st.session_state.processed_data is not None and not st.session_state.is_proce
 
     st.download_button(
         label="📥 Download Flattened CSV",
-        data=csv_data,
+        data=st.session_state.processed_data.to_csv(index=False).encode("utf-8"),
         file_name=file_name,
         mime="text/csv"
     )
+
+    # ✅ Show Done message when download appears
+    if st.session_state.is_done:
+        st.success("✅ Done! Flattened Successfully.")
