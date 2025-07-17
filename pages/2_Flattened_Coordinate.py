@@ -19,7 +19,7 @@ st.set_page_config(page_title="Flatten Coordinates", layout="centered")
 if "processed_data" not in st.session_state:
     st.session_state.processed_data = None
 if "file_name_input" not in st.session_state:
-    st.session_state.file_name_input = "flattened_coordinates"
+    st.session_state.file_name_input = ""
 if "is_processing" not in st.session_state:
     st.session_state.is_processing = False
 
@@ -91,7 +91,7 @@ if uploaded_file:
 
 # Input for output file name
 if uploaded_file:
-    st.text_input("📄 Enter output file name:", value=st.session_state.file_name_input, key="file_name_input")
+    st.text_input("📄 Enter output file name:", key="file_name_input")
 
     if st.button("🔄 Start Flattening"):
         st.markdown("⏳ **Processing... Please wait.**")
@@ -101,8 +101,10 @@ if uploaded_file:
 if st.session_state.processed_data is not None and not st.session_state.is_processing:
     csv_data = st.session_state.processed_data.to_csv(index=False).encode("utf-8")
 
-    # Ensure .csv is included
+    # Ambil input user dan pastikan .csv ditambahkan hanya untuk file_name, bukan input
     file_name = st.session_state.file_name_input.strip()
+    if file_name == "":
+        file_name = "flattened_coordinates"
     if not file_name.lower().endswith(".csv"):
         file_name += ".csv"
 
