@@ -16,7 +16,7 @@ def flatten_coordinates_from_file(uploaded_file):
 
     output_rows = []
     try:
-        # Read uploaded CSV as text stream
+        # Read uploaded CSV as text lines
         decoded = uploaded_file.getvalue().decode('utf-8').splitlines()
         reader = csv.DictReader(decoded)
 
