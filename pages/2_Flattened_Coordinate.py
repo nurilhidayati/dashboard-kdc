@@ -102,11 +102,9 @@ if st.session_state.processed_data is not None and not st.session_state.is_proce
         file_name += ".csv"
 
     st.download_button(
-        label="📥 Download Flattened CSV",
+        label="📥 Download CSV",
         data=st.session_state.processed_data.to_csv(index=False).encode("utf-8"),
         file_name=file_name,
         mime="text/csv"
     )
 
-    if st.session_state.is_done:
-        st.success("✅ Done! Flattened Successfully.")
