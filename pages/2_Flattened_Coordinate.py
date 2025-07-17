@@ -1,37 +1,35 @@
+import streamlit as st
+import pandas as pd
 import csv
 import ast
-import pandas as pd
 
-def flatten_coordinates(input_csv_path, output_csv_path):
-    """
-    Reads a CSV with 'road_coordinates' column containing nested coordinate lists,
-    flattens coordinates into separate rows with x and y columns,
-    and writes the output to a new CSV.
-    """
+def flatten_coordinates_from_file(uploaded_file):
+    if uploaded_file is None:
+        st.warning("Please upload a CSV file.")
+        return
+
     fieldnames = [
         "country_id", "id", "grid_id", "grid_id_clean", "road_coordinates",
         "first_coordinate", "created_at", "report_user_id", "type", "org_code", "note",
         "segment_id", "x", "y"
     ]
 
-    with open(input_csv_path, mode="r", encoding="utf-8") as infile, \
-         open(output_csv_path, mode="w", newline="", encoding="utf-8") as outfile:
-
-        reader = csv.DictReader(infile)
-        writer = csv.DictWriter(outfile, fieldnames=fieldnames)
-        writer.writeheader()
+    output_rows = []
+    try:
+        # Read uploaded CSV as text stream
+        decoded = uploaded_file.getvalue().decode('utf-8').splitlines()
+        reader = csv.DictReader(decoded)
 
         for row in reader:
             try:
                 coords_data = ast.literal_eval(row["road_coordinates"])
 
-                # Normalize: if single segment (list of tuples), wrap in list
                 if coords_data and isinstance(coords_data[0][0], (int, float)):
                     coords_data = [coords_data]
 
                 for segment_index, segment_coords in enumerate(coords_data, start=1):
                     for coord in segment_coords:
-                        writer.writerow({
+                        output_rows.append({
                             "country_id": row.get("country_id", ""),
                             "id": row["id"],
                             "grid_id": row.get("grid_id", ""),
@@ -47,18 +45,27 @@ def flatten_coordinates(input_csv_path, output_csv_path):
                             "x": coord[0],
                             "y": coord[1],
                         })
-
             except Exception as e:
-                print(f"⚠️ Error processing row {row.get('id', 'unknown')}: {e}")
+                st.error(f"Error processing row {row.get('id', 'unknown')}: {e}")
 
-    print(f"✅ Flattened coordinates saved to: {output_csv_path}")
+        # Convert to DataFrame and display
+        df = pd.DataFrame(output_rows)
+        st.dataframe(df)
 
-    # Optional: preview first 5 rows
-    df = pd.read_csv(output_csv_path)
-    print(df.head())
+        # Provide download button
+        csv_data = df.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="📥 Download Flattened CSV",
+            data=csv_data,
+            file_name="flattened_coordinates.csv",
+            mime="text/csv"
+        )
+    except Exception as e:
+        st.error(f"Failed to process file: {e}")
 
-# Example usage:
-flatten_coordinates(
-    input_csv_path="/content/ID_Gap Justification_2024 - Palembang.csv",
-    output_csv_path="2024campaign.csv"
-)
+# --- Streamlit UI ---
+st.title("Flatten Coordinates CSV")
+
+uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
+if uploaded_file:
+    flatten_coordinates_from_file(uploaded_file)
