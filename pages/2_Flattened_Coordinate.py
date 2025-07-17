@@ -6,28 +6,20 @@ from io import StringIO
 
 st.set_page_config(page_title="Flatten Coordinates", layout="centered")
 
-# --- Init Session State ---
-import streamlit as st
-import pandas as pd
-import csv
-import ast
-from io import StringIO
-
-st.set_page_config(page_title="Flatten Coordinates", layout="centered")
-
-# ✅ INIT: PASTIKAN INI DULUAN
+# ✅ INIT SESSION STATE
 if "processed_data" not in st.session_state:
     st.session_state.processed_data = None
 if "file_name_input" not in st.session_state:
     st.session_state.file_name_input = ""
 if "is_processing" not in st.session_state:
     st.session_state.is_processing = False
-
+if "last_uploaded_file_name" not in st.session_state:
+    st.session_state.last_uploaded_file_name = None
 
 # --- Core Processing Function ---
 def flatten_coordinates_from_file(uploaded_file, batch_size=1000):
     try:
-        st.session_state.is_processing = True  # Set processing flag
+        st.session_state.is_processing = True
         output_rows = []
 
         content = uploaded_file.getvalue().decode('utf-8')
@@ -84,10 +76,12 @@ st.title("🗺️ Flatten Coordinates CSV")
 
 uploaded_file = st.file_uploader("📂 Upload your CSV file", type=["csv"])
 
-# Reset state when new file uploaded
+# Detect new upload → reset state only when file changes
 if uploaded_file:
-    st.session_state.processed_data = None
-    st.session_state.is_processing = False
+    if uploaded_file.name != st.session_state.last_uploaded_file_name:
+        st.session_state.processed_data = None
+        st.session_state.is_processing = False
+        st.session_state.last_uploaded_file_name = uploaded_file.name
 
 # Input for output file name
 if uploaded_file:
@@ -101,9 +95,9 @@ if uploaded_file:
 if st.session_state.processed_data is not None and not st.session_state.is_processing:
     csv_data = st.session_state.processed_data.to_csv(index=False).encode("utf-8")
 
-    # Ambil input user dan pastikan .csv ditambahkan hanya untuk file_name, bukan input
+    # Get cleaned file name with .csv
     file_name = st.session_state.file_name_input.strip()
-    if file_name == "":
+    if not file_name:
         file_name = "flattened_coordinates"
     if not file_name.lower().endswith(".csv"):
         file_name += ".csv"
