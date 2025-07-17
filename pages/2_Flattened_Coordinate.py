@@ -92,12 +92,34 @@ def flatten_coordinates_from_file(uploaded_file, batch_size=1000):
         st.session_state.is_processing = False
 
 # --- Input file name & Start Button ---
+# Add this CSS to make the button float bottom-right
+st.markdown(
+    """
+    <style>
+    .float-btn {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 1000;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# Then render the button inside a div with class "float-btn"
 if uploaded_file:
     st.text_input("📄 Enter output file name:", key="file_name_input")
 
     if st.session_state.processed_data is None and not st.session_state.is_processing:
-        if st.button("🔄 Start Flattening"):
-            flatten_coordinates_from_file(uploaded_file)
+        # Use markdown + button inside a div with class float-btn
+        btn_placeholder = st.empty()
+        with btn_placeholder.container():
+            st.markdown('<div class="float-btn">', unsafe_allow_html=True)
+            if st.button("🔄 Start Flattening"):
+                flatten_coordinates_from_file(uploaded_file)
+            st.markdown('</div>', unsafe_allow_html=True)
+
 
 
 # --- Show download button and Done message ---
