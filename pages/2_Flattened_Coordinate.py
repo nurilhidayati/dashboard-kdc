@@ -5,10 +5,6 @@ import ast
 from io import StringIO
 
 def flatten_coordinates_from_file(uploaded_file, batch_size=1000):
-    if uploaded_file is None:
-        st.warning("Please upload a CSV file.")
-        return
-
     try:
         output_rows = []
 
@@ -17,7 +13,7 @@ def flatten_coordinates_from_file(uploaded_file, batch_size=1000):
         header = lines[0]
         data_lines = lines[1:]
 
-        with st.spinner("Processing... Please wait."):
+        with st.spinner("⏳ Processing... Please wait."):
             for start in range(0, len(data_lines), batch_size):
                 batch_lines = data_lines[start : start + batch_size]
                 batch_csv = "\n".join([header] + batch_lines)
@@ -35,9 +31,7 @@ def flatten_coordinates_from_file(uploaded_file, batch_size=1000):
                                     "country_id": row.get("country_id", ""),
                                     "id": row["id"],
                                     "grid_id": row.get("grid_id", ""),
-                                    "grid_id_clean": row.get("grid_id_clean", ""),
                                     "road_coordinates": row["road_coordinates"],
-                                    "first_coordinate": row.get("first_coordinate", ""),
                                     "created_at": row.get("created_at", ""),
                                     "report_user_id": row.get("report_user_id", ""),
                                     "type": row.get("type", ""),
@@ -51,6 +45,7 @@ def flatten_coordinates_from_file(uploaded_file, batch_size=1000):
                         st.error(f"Error processing row {row.get('id', 'unknown')}: {e}")
 
         df = pd.DataFrame(output_rows)
+        st.success("✅ Done! Flattened successfully.")
         st.dataframe(df)
 
         csv_data = df.to_csv(index=False).encode('utf-8')
@@ -61,11 +56,14 @@ def flatten_coordinates_from_file(uploaded_file, batch_size=1000):
             mime="text/csv"
         )
     except Exception as e:
-        st.error(f"Unexpected error occurred: {e}")
+        st.error(f"❌ Unexpected error occurred: {e}")
+
 
 # --- Streamlit UI ---
-st.title("Flatten Coordinates CSV")
+st.title("🗺️ Flatten Coordinates CSV")
 
 uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
+
 if uploaded_file:
-    flatten_coordinates_from_file(uploaded_file)
+    if st.button("🔄 Start Flattening"):
+        flatten_coordinates_from_file(uploaded_file)
