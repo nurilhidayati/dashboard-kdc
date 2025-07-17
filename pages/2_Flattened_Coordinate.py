@@ -21,6 +21,26 @@ st.title("🗺️ Flatten Coordinates CSV")
 
 uploaded_file = st.file_uploader("📂 Upload your CSV file", type=["csv"])
 
+# --- Detect new file upload and reset state ---
+uploaded_file_changed = False
+if uploaded_file is not None:
+    if uploaded_file.name != st.session_state.last_uploaded_file_name:
+        uploaded_file_changed = True
+        st.session_state.last_uploaded_file_name = uploaded_file.name
+        st.session_state.processed_data = None
+        st.session_state.is_processing = False
+        st.session_state.is_done = False
+        st.session_state.file_name_input = ""
+
+else:
+    # No file, reset all
+    st.session_state.last_uploaded_file_name = None
+    st.session_state.processed_data = None
+    st.session_state.is_processing = False
+    st.session_state.is_done = False
+    st.session_state.file_name_input = ""
+
+# --- Core Processing Function ---
 def flatten_coordinates_from_file(uploaded_file, batch_size=1000):
     try:
         st.session_state.is_processing = True
@@ -41,7 +61,6 @@ def flatten_coordinates_from_file(uploaded_file, batch_size=1000):
                 for row in reader:
                     try:
                         coords_data = ast.literal_eval(row.get("road_coordinates", "[]"))
-                        # Check if coords_data is list of coordinates or list of list of coords
                         if coords_data and isinstance(coords_data[0], (int, float)):
                             coords_data = [coords_data]
 
@@ -77,20 +96,7 @@ def flatten_coordinates_from_file(uploaded_file, batch_size=1000):
     finally:
         st.session_state.is_processing = False
 
-# Reset state if no file uploaded or file changed
-if uploaded_file is None:
-    st.session_state.processed_data = None
-    st.session_state.is_processing = False
-    st.session_state.is_done = False
-    st.session_state.last_uploaded_file_name = None
-else:
-    if uploaded_file.name != st.session_state.last_uploaded_file_name:
-        st.session_state.last_uploaded_file_name = uploaded_file.name
-        st.session_state.processed_data = None
-        st.session_state.is_processing = False
-        st.session_state.is_done = False
-
-# CSS for floating button bottom-right
+# --- Floating Button Style ---
 st.markdown("""
 <style>
 .float-btn {
@@ -102,8 +108,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Show floating start button ONLY if not processing and no data processed yet
-
+# --- UI ---
 if uploaded_file:
     st.text_input("📄 Enter output file name:", key="file_name_input")
 
@@ -112,8 +117,7 @@ if uploaded_file:
         if st.button("🔄 Start Flattening", disabled=st.session_state.is_processing):
             flatten_coordinates_from_file(uploaded_file)
         st.markdown('</div>', unsafe_allow_html=True)
-        
-    # Show dataframe and download button if processed and not processing
+
     if st.session_state.processed_data is not None and not st.session_state.is_processing:
         st.dataframe(st.session_state.processed_data)
 
