@@ -90,8 +90,10 @@ def flatten_coordinates_from_file(uploaded_file, batch_size=1000):
 if uploaded_file:
     st.text_input("📄 Enter output file name:", key="file_name_input")
 
-    if st.button("🔄 Start Flattening"):
-        flatten_coordinates_from_file(uploaded_file)
+    if st.session_state.processed_data is None and not st.session_state.is_processing:
+        if st.button("🔄 Start Flattening"):
+            flatten_coordinates_from_file(uploaded_file)
+
 
 # --- Show download button and Done message ---
 if st.session_state.processed_data is not None and not st.session_state.is_processing:
