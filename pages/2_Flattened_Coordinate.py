@@ -103,16 +103,16 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Show floating start button ONLY if not processing and no data processed yet
-if uploaded_file and not st.session_state.is_processing and st.session_state.processed_data is None:
-    with st.container():
-        st.markdown('<div class="float-btn">', unsafe_allow_html=True)
-        if st.button("🔄 Start Flattening"):
-            flatten_coordinates_from_file(uploaded_file)
-        st.markdown('</div>', unsafe_allow_html=True)
 
 if uploaded_file:
     st.text_input("📄 Enter output file name:", key="file_name_input")
 
+    with st.container():
+        st.markdown('<div class="float-btn">', unsafe_allow_html=True)
+        if st.button("🔄 Start Flattening", disabled=st.session_state.is_processing):
+            flatten_coordinates_from_file(uploaded_file)
+        st.markdown('</div>', unsafe_allow_html=True)
+        
     # Show dataframe and download button if processed and not processing
     if st.session_state.processed_data is not None and not st.session_state.is_processing:
         st.dataframe(st.session_state.processed_data)
