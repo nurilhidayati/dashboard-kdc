@@ -23,8 +23,13 @@ st.title("🗺️ Flatten Coordinates CSV")
 
 uploaded_file = st.file_uploader("📂 Upload your CSV file", type=["csv"])
 
-# ✅ Detect new upload → reset state only when file changes
-if uploaded_file:
+# Reset state properly
+if uploaded_file is None:
+    st.session_state.processed_data = None
+    st.session_state.is_processing = False
+    st.session_state.is_done = False
+    st.session_state.last_uploaded_file_name = None
+else:
     if uploaded_file.name != st.session_state.last_uploaded_file_name:
         st.session_state.last_uploaded_file_name = uploaded_file.name
         st.session_state.processed_data = None
