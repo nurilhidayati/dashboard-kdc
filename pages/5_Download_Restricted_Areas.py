@@ -8,13 +8,21 @@ st.title("🗺️ Restricted Area & Road Downloader")
 # 👉 Input nama wilayah
 place_name = st.text_input("Enter a place name", value="")
 
-# Inisialisasi session state jika belum ada
+# Inisialisasi session state untuk area
 if "show_area_download" not in st.session_state:
     st.session_state.show_area_download = False
 if "buffer_area" not in st.session_state:
     st.session_state.buffer_area = None
 if "gdf_area" not in st.session_state:
     st.session_state.gdf_area = None
+
+# Inisialisasi session state untuk roads
+if "show_road_download" not in st.session_state:
+    st.session_state.show_road_download = False
+if "buffer_road" not in st.session_state:
+    st.session_state.buffer_road = None
+if "gdf_road" not in st.session_state:
+    st.session_state.gdf_road = None
 
 # Fungsi: Download area terbatas (Polygon)
 def download_restricted_areas(place):
@@ -78,16 +86,29 @@ if st.session_state.show_area_download and st.session_state.buffer_area:
     st.download_button("⬇️ Download Areas", st.session_state.buffer_area,
                        "restricted_areas.geojson", "application/geo+json")
 
-# --- Tombol 2: Road ---
+# --- Tombol 2: Toggle Road Download ---
 if st.button("🚧 Download Restricted Roads (GeoJSON)"):
     if not place_name.strip():
         st.warning("⚠️ Please enter a place name first.")
     else:
-        try:
-            st.info("Fetching restricted roads...")
-            gdf_roads, buffer_roads = download_restricted_roads(place_name)
-            st.success(f"✅ {len(gdf_roads)} restricted roads found")
-            st.download_button("⬇️ Download Roads", buffer_roads,
-                               "restricted_roads.geojson", "application/geo+json")
-        except Exception as e:
-            st.error(f"❌ Error: {e}")
+        if st.session_state.show_road_download:
+            # Hide download button
+            st.session_state.show_road_download = False
+            st.session_state.buffer_road = None
+            st.session_state.gdf_road = None
+        else:
+            try:
+                st.info("Fetching restricted roads...")
+                gdf_road, buffer_road = download_restricted_roads(place_name)
+                st.session_state.gdf_road = gdf_road
+                st.session_state.buffer_road = buffer_road
+                st.session_state.show_road_download = True
+                st.success(f"✅ {len(gdf_road)} restricted roads found")
+            except Exception as e:
+                st.error(f"❌ Error: {e}")
+                st.session_state.show_road_download = False
+
+# Show download button if ready
+if st.session_state.show_road_download and st.session_state.buffer_road:
+    st.download_button("⬇️ Download Roads", st.session_state.buffer_road,
+                       "restricted_roads.geojson", "application/geo+json")
