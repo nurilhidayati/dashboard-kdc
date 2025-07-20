@@ -50,7 +50,7 @@ Dots A → B → C are just locations — but connecting them creates an actual 
 
 ---
 
-**✅ Step 4: Merge GeoJSON LineStrings**  
+**✅ Step 4: Merge GeoJSON LineStrings (Optional)**  
 This step is optional to use it only if your dataset was split into multiple files (e.g., 5000 rows per batch). If your data is in a single file, you can skip this step
 
 
