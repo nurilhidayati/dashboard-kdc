@@ -12,6 +12,11 @@ st.title("✅ Step 1: Split CSV by City Name & Chunked Download")
 uploaded_file = st.file_uploader("📤 Upload your CSV file", type=["csv"])
 city_name = st.text_input("🏙️ Please Enter City Name (e.g., Jakarta)")
 
+download_option = st.radio(
+    "📎 Choose Download Option:",
+    ("Download All in One File", "Download in Batches (5000 rows each)")
+)
+
 if "processed" not in st.session_state:
     st.session_state.processed = False
 
@@ -35,13 +40,21 @@ if st.session_state.processed:
     st.success(f"✅ Found {len(filtered_df)} rows for city: {city_name}")
     st.dataframe(filtered_df)
 
-    chunks = split_dataframe(filtered_df, chunk_size=5000)
-
-    for i, chunk in enumerate(chunks, start=1):
-        csv_data = chunk.to_csv(index=False).encode("utf-8")
+    if download_option == "Download All in One File":
+        csv_data = filtered_df.to_csv(index=False).encode("utf-8")
         st.download_button(
-            label=f"📥 Download {city_name}_data_part{i}.csv ({len(chunk)} rows)",
+            label=f"📥 Download Full {city_name} Data",
             data=csv_data,
-            file_name=f"{city_name}_data_part{i}.csv",
+            file_name=f"{city_name}_full_data.csv",
             mime="text/csv"
         )
+    else:
+        chunks = split_dataframe(filtered_df, chunk_size=5000)
+        for i, chunk in enumerate(chunks, start=1):
+            csv_data = chunk.to_csv(index=False).encode("utf-8")
+            st.download_button(
+                label=f"📥 Download {city_name}_part{i}.csv ({len(chunk)} rows)",
+                data=csv_data,
+                file_name=f"{city_name}_data_part{i}.csv",
+                mime="text/csv"
+            )
