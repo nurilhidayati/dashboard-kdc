@@ -42,15 +42,15 @@ process_clicked = st.button("▶️ Process")
 if process_clicked:
     missing = []
     if not uploaded_roads:
-        missing.append("📂 Upload Road")
+        missing.append("📂 Road file")
     if not uploaded_polygons:
-        missing.append("📂 Upload Restricted Area")
+        missing.append("📂 Restricted Area file")
     if not uploaded_lines:
-        missing.append("📂 Upload Restricted Road")
+        missing.append("📂 Restricted Road file")
 
     if missing:
         for msg in missing:
-            st.warning(f"⚠️ {msg} belum diupload.")
+            st.warning(f"⚠️ {msg} is not yet uploaded.")
     else:
         try:
             gdf_roads = gpd.read_file(uploaded_roads)
