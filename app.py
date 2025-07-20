@@ -11,10 +11,7 @@ st.title("🛠️ Analyst Gap Justification")
 st.markdown("""
 ### 🔍 Overview
 
-**Analyst Gap Justification** is a geospatial web application built with Streamlit that helps mapping teams analyze and validate road segments against restricted areas.  
-It automates filtering, transforming, and evaluating road data using OpenStreetMap (OSM) — reducing the need for manual GIS work.
-
-Ideal for teams working with street-level imagery from driver-partners, it streamlines the detection of roads crossing restricted zones.
+**Analyst Gap Justification** is a geospatial web application built with Streamlit that helps mapping teams analyze and validate road segments against restricted areas. It automates filtering, transforming, and evaluating road data using OpenStreetMap (OSM) — reducing the need for manual GIS work.
 
 ---
 
