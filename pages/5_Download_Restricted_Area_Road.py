@@ -3,7 +3,7 @@ import osmnx as ox
 import geopandas as gpd
 import io
 
-st.title("🗺️ Download Restricted Area and Road")
+st.title("Download Restricted Area and Road")
 
 # 👉 Input nama wilayah
 place_name = st.text_input("Enter a place name, ex: Jakarta, Indonesia", value="")
@@ -36,10 +36,9 @@ def download_restricted_areas(place):
 # Fungsi: Download jalan terbatas (LineString)
 def download_restricted_roads(place):
     tags = {
-        "highway": ["service", "unclassified", "residential", "track"],
+        "highway": ["service", "unclassified", "track"],
         "access": ["private", "customers", "permit", "military", "no"],
-        "motor_vehicle": ["private", "no"],
-        "motorcar": ["private", "no"],
+        "motorcycle": ["no", "private"],
         "service": ["driveway", "alley", "emergency_access"],
     }
 

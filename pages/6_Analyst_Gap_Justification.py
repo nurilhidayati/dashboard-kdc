@@ -3,7 +3,7 @@ import geopandas as gpd
 import pandas as pd
 import io
 
-st.title("🛣️ Analyst Gap Justification")
+st.title("Analyst Gap Justification")
 
 # Fungsi utama
 def select_restricted_roads(gdf_roads, gdf_polygons, gdf_lines, distance_meters=100.0):
@@ -57,7 +57,6 @@ if process_clicked:
             gdf_polygons = gpd.read_file(uploaded_polygons)
             gdf_lines = gpd.read_file(uploaded_lines)
 
-            st.info("🔍 Processing intersections...")
             selected = select_restricted_roads(gdf_roads, gdf_polygons, gdf_lines)
             st.session_state.selected_roads = selected
             st.success(f"✅ Found {len(selected)} intersecting roads.")

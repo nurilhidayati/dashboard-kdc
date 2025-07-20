@@ -27,7 +27,7 @@ if uploaded_file is None and st.session_state.geojson_ready:
 file_name_input = st.text_input("📝 Enter output file name (without .geojson):")
 
 # --- Convert Button ---
-if st.button("🚀 Convert to GeoJSON"):
+if st.button("Convert to GeoJSON"):
     # Clear previous result (selalu clear ketika tombol diklik)
     st.session_state.geojson_data = None
     st.session_state.geojson_filename = None
