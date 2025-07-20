@@ -15,11 +15,6 @@ st.markdown("""
 
 ---
 
-### 🎯 Purpose
-To improve the speed and accuracy of road validation by automating key spatial processes — from filtering to comparing — without relying on desktop GIS tools.
-
----
-
 ### 🔄 Workflow Steps
 **✅ Step 1: Split Data by City Name**  
 This step filters and extracts rows from the uploaded CSV file based on a specific city name found within the grid_id column. The application identifies the city by splitting the grid_id string and matching the second word with the city name you enter (example: "Jakarta"). This is useful when you only want to analyze or export data from a particular city out of a larger dataset.
