@@ -25,6 +25,8 @@ To improve the speed and accuracy of analyst gap justification by automating key
 This step filters and extracts rows from the uploaded CSV file based on a specific city name found within the grid_id column. The application identifies the city by splitting the grid_id string and matching the second word with the city name you enter (example: "Jakarta"). This is useful when you only want to analyze or export data from a particular city out of a larger dataset.
 
 
+---
+
 **✅ Step 2: Flatten Coordinates**  
 Raw coordinate data looks like this:  
 `[[(104.75, -2.97), (104.76, -2.96)]]`  
@@ -33,7 +35,7 @@ This format stores stores multiple coordinates in a single row, which makes the 
 
 ---
 
-**✏️ Step 3: Convert to Polylines**  
+**✅ Step 3: Convert to Polylines**  
 After flattening, each road is still just a list of dots.  
 We now **connect the dots** to form visible road paths.
 
@@ -47,7 +49,7 @@ Dots A → B → C are just locations — but connecting them creates an actual 
 
 ---
 
-**🌍 Step 4: Download Restricted Areas**  
+**✅ Step 4: Download Restricted Areas**  
 In this step, the app automatically downloads restricted zones from OpenStreetMap (OSM) based on specific tags.
 🏞️ Restricted Areas include:
 - Land use: military, industrial, commercial, cemetery, landfill
@@ -69,7 +71,7 @@ In this step, the app automatically downloads restricted zones from OpenStreetMa
 
 ---
 
-**🚧 Step 5: Analyst Gap Justification**  
+**✅ Step 5: Analyst Gap Justification**  
 Now we check: do any roads **intersect** with restricted zones?
 
 **Why this matters:**  
