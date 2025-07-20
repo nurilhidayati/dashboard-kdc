@@ -17,10 +17,20 @@ download_option = st.radio(
     ("Download All in One File", "Download in Batches (5000 rows each)")
 )
 
+# Initialize session state variables
 if "processed" not in st.session_state:
     st.session_state.processed = False
+if "filtered_df" not in st.session_state:
+    st.session_state.filtered_df = None
+if "city_name" not in st.session_state:
+    st.session_state.city_name = ""
 
 if st.button("🚀 Process"):
+    # Clear previous results
+    st.session_state.processed = False
+    st.session_state.filtered_df = None
+    st.session_state.city_name = ""
+
     if not uploaded_file:
         st.warning("📤 Please upload a CSV file first!")
     elif not city_name.strip():
@@ -31,14 +41,14 @@ if st.button("🚀 Process"):
 
             if "grid_id" not in df.columns:
                 st.error("❌ The uploaded CSV must contain a 'grid_id' column.")
-                st.session_state.processed = False
             else:
                 filtered_df = filter_by_city(df, city_name)
                 st.session_state.filtered_df = filtered_df
                 st.session_state.city_name = city_name
                 st.session_state.processed = True
 
-if st.session_state.processed:
+# Render results if processed
+if st.session_state.processed and st.session_state.filtered_df is not None:
     filtered_df = st.session_state.filtered_df
     city_name = st.session_state.city_name
 
