@@ -31,7 +31,6 @@ if uploaded_file is not None:
         st.session_state.is_processing = False
         st.session_state.is_done = False
         st.session_state.file_name_input = ""
-
 else:
     # No file, reset all
     st.session_state.last_uploaded_file_name = None
@@ -114,13 +113,16 @@ if uploaded_file:
 
     with st.container():
         st.markdown('<div class="float-btn">', unsafe_allow_html=True)
+
         if st.button("🔄 Start Flattening", disabled=st.session_state.is_processing):
-            flatten_coordinates_from_file(uploaded_file)
+            if not st.session_state.file_name_input.strip():
+                st.warning("❗ Please enter filename before processing.")
+            else:
+                flatten_coordinates_from_file(uploaded_file)
+
         st.markdown('</div>', unsafe_allow_html=True)
 
     if st.session_state.processed_data is not None and not st.session_state.is_processing:
-        st.dataframe(st.session_state.processed_data)
-
         file_name = st.session_state.file_name_input.strip()
         if not file_name:
             file_name = "flattened_coordinates"
@@ -135,4 +137,4 @@ if uploaded_file:
             key="download-csv"
         )
 else:
-    st.info("Please upload a CSV file to start.")
+    st.info("📢 Please upload CSV data first.")
