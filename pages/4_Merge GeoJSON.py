@@ -32,7 +32,7 @@ def merge_linestrings(geojson_files):
 
 # UI
 st.set_page_config(page_title="Merge GeoJSON LineStrings")
-st.title("🔗 Merge GeoJSON LineStrings")
+st.title("Merge GeoJSON LineStrings")
 
 # Init session state
 if "geojson_bytes" not in st.session_state:
