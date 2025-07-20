@@ -18,6 +18,13 @@ if "geojson_ready" not in st.session_state:
 uploaded_file = st.file_uploader("Upload your flattened CSV file", type=["csv"])
 file_name_input = st.text_input("📝 Enter output file name (without .geojson):")
 
+# --- Reset output if user removes the uploaded file ---
+if uploaded_file is None and st.session_state.geojson_ready:
+    st.session_state.geojson_data = None
+    st.session_state.geojson_filename = None
+    st.session_state.geojson_ready = False
+    st.warning("❗ Please upload CSV file first.")
+
 # --- Convert Button ---
 if st.button("🚀 Convert to GeoJSON"):
     # Clear previous result (selalu clear ketika tombol diklik)
