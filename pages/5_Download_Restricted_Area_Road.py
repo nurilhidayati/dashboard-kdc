@@ -8,25 +8,10 @@ st.title("🗺️ Download Restricted Area and Road")
 # 👉 Input nama wilayah
 place_name = st.text_input("Enter a place name, ex: Jakarta, Indonesia", value="")
 
-# 👉 Input nama file output
-area_filename = st.text_input("Filename for area (without .geojson)", value="restricted_areas")
-road_filename = st.text_input("Filename for roads (without .geojson)", value="restricted_roads")
-
-# Inisialisasi session state untuk area
-if "show_area_download" not in st.session_state:
-    st.session_state.show_area_download = False
-if "buffer_area" not in st.session_state:
-    st.session_state.buffer_area = None
-if "gdf_area" not in st.session_state:
-    st.session_state.gdf_area = None
-
-# Inisialisasi session state untuk roads
-if "show_road_download" not in st.session_state:
-    st.session_state.show_road_download = False
-if "buffer_road" not in st.session_state:
-    st.session_state.buffer_road = None
-if "gdf_road" not in st.session_state:
-    st.session_state.gdf_road = None
+# Inisialisasi session state
+for key in ["show_area_download", "buffer_area", "gdf_area", "show_road_download", "buffer_road", "gdf_road"]:
+    if key not in st.session_state:
+        st.session_state[key] = None
 
 # Fungsi: Download area terbatas (Polygon)
 def download_restricted_areas(place):
@@ -65,7 +50,10 @@ def download_restricted_roads(place):
     buffer.seek(0)
     return gdf, buffer
 
-# --- Tombol 1: Toggle Area Download ---
+# 👉 Input nama file output
+area_filename = st.text_input("Filename for area (without .geojson)", value="restricted_areas")
+
+# --- Tombol 1: Area ---
 if st.button("🔍 Download Restricted Areas (GeoJSON)"):
     if not place_name.strip():
         st.warning("⚠️ Please enter a place name first.")
@@ -74,6 +62,11 @@ if st.button("🔍 Download Restricted Areas (GeoJSON)"):
     else:
         try:
             st.info("Fetching restricted areas...")
+            # Reset data sebelumnya
+            st.session_state.gdf_area = None
+            st.session_state.buffer_area = None
+            st.session_state.show_area_download = False
+
             gdf_area, buffer_area = download_restricted_areas(place_name)
             st.session_state.gdf_area = gdf_area
             st.session_state.buffer_area = buffer_area
@@ -83,12 +76,15 @@ if st.button("🔍 Download Restricted Areas (GeoJSON)"):
             st.error(f"❌ Error: {e}")
             st.session_state.show_area_download = False
 
-# Show download button if ready
+# Tampilkan tombol download jika tersedia
 if st.session_state.show_area_download and st.session_state.buffer_area:
     st.download_button("⬇️ Download Areas", st.session_state.buffer_area,
                        f"{area_filename}.geojson", "application/geo+json")
 
-# --- Tombol 2: Toggle Road Download ---
+
+road_filename = st.text_input("Filename for roads (without .geojson)", value="restricted_roads")
+
+# --- Tombol 2: Road ---
 if st.button("🚧 Download Restricted Roads (GeoJSON)"):
     if not place_name.strip():
         st.warning("⚠️ Please enter a place name first.")
@@ -97,6 +93,11 @@ if st.button("🚧 Download Restricted Roads (GeoJSON)"):
     else:
         try:
             st.info("Fetching restricted roads...")
+            # Reset data sebelumnya
+            st.session_state.gdf_road = None
+            st.session_state.buffer_road = None
+            st.session_state.show_road_download = False
+
             gdf_road, buffer_road = download_restricted_roads(place_name)
             st.session_state.gdf_road = gdf_road
             st.session_state.buffer_road = buffer_road
@@ -106,7 +107,7 @@ if st.button("🚧 Download Restricted Roads (GeoJSON)"):
             st.error(f"❌ Error: {e}")
             st.session_state.show_road_download = False
 
-# Show download button if ready
+# Tampilkan tombol download jika tersedia
 if st.session_state.show_road_download and st.session_state.buffer_road:
     st.download_button("⬇️ Download Roads", st.session_state.buffer_road,
                        f"{road_filename}.geojson", "application/geo+json")
