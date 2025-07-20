@@ -3,11 +3,10 @@ import geopandas as gpd
 import pandas as pd
 import io
 
-st.title("🛣️ Select Roads Intersecting Restricted Areas")
+st.title("🛣️ Analyst Gap Justification")
 
 # Fungsi utama
 def select_restricted_roads(gdf_roads, gdf_polygons, gdf_lines=None, distance_meters=100.0):
-    # Convert to projected CRS (UTM) for distance calculation
     if gdf_roads.crs.is_geographic:
         utm_crs = gdf_roads.estimate_utm_crs()
         gdf_roads = gdf_roads.to_crs(utm_crs)
@@ -15,58 +14,60 @@ def select_restricted_roads(gdf_roads, gdf_polygons, gdf_lines=None, distance_me
         if gdf_lines is not None:
             gdf_lines = gdf_lines.to_crs(utm_crs)
 
-    # Buffer polygon layer
     buffered_polygons = gdf_polygons.buffer(distance_meters)
     buffered_polygons_gdf = gpd.GeoDataFrame(geometry=buffered_polygons, crs=gdf_polygons.crs)
 
-    # Gabungkan buffered polygon dan line (jika ada)
     if gdf_lines is not None:
         combined_geometry = pd.concat([buffered_polygons_gdf.geometry, gdf_lines.geometry], ignore_index=True)
         all_combined = gpd.GeoDataFrame(geometry=combined_geometry, crs=buffered_polygons_gdf.crs)
     else:
         all_combined = buffered_polygons_gdf
 
-    # Spatial join
     selected = gpd.sjoin(gdf_roads, all_combined, how="inner", predicate="intersects")
-
-    # Drop duplicates & convert back to WGS84
     selected = selected.drop_duplicates(subset=gdf_roads.columns)
     return selected.to_crs("EPSG:4326")
 
 # Upload UI
 uploaded_roads = st.file_uploader("📤 Upload Road GeoJSON", type=["geojson"])
 uploaded_polygons = st.file_uploader("📤 Upload Restricted Area (Polygon GeoJSON)", type=["geojson"])
-uploaded_lines = st.file_uploader("📤 Optional: Upload Barrier Lines (GeoJSON)", type=["geojson"])
-distance = st.slider("📏 Distance buffer for polygons (meters)", 10, 1000, 100, step=10)
+uploaded_lines = st.file_uploader("📤 Upload Restricted Road (Linestring GeoJSON)", type=["geojson"])
 
-# Proses setelah upload
+# Inisialisasi state
+if "selected_roads" not in st.session_state:
+    st.session_state.selected_roads = None
+
+# Tampilkan tombol proses jika semua file wajib terisi
 if uploaded_roads and uploaded_polygons:
-    try:
-        gdf_roads = gpd.read_file(uploaded_roads)
-        gdf_polygons = gpd.read_file(uploaded_polygons)
-        gdf_lines = gpd.read_file(uploaded_lines) if uploaded_lines else None
+    if st.button("▶️ Process"):
+        try:
+            gdf_roads = gpd.read_file(uploaded_roads)
+            gdf_polygons = gpd.read_file(uploaded_polygons)
+            gdf_lines = gpd.read_file(uploaded_lines) if uploaded_lines else None
 
-        st.info("🔍 Processing intersections...")
-        selected_roads = select_restricted_roads(gdf_roads, gdf_polygons, gdf_lines, distance)
+            st.info("🔍 Processing intersections...")
+            selected = select_restricted_roads(gdf_roads, gdf_polygons, gdf_lines)
+            st.session_state.selected_roads = selected
+            st.success(f"✅ Found {len(selected)} intersecting roads.")
 
-        st.success(f"✅ Found {len(selected_roads)} intersecting roads.")
+        except Exception as e:
+            st.error(f"❌ Error: {e}")
+            st.session_state.selected_roads = None
 
-        # Map preview
-        selected_roads["lon"] = selected_roads.geometry.centroid.x
-        selected_roads["lat"] = selected_roads.geometry.centroid.y
-        st.map(selected_roads[["lat", "lon"]])
+# Tampilkan hasil jika sudah diproses
+if st.session_state.selected_roads is not None:
+    selected = st.session_state.selected_roads.copy()
+    selected["lon"] = selected.geometry.centroid.x
+    selected["lat"] = selected.geometry.centroid.y
 
-        # Download
-        buffer = io.BytesIO()
-        selected_roads.to_file(buffer, driver="GeoJSON")
-        buffer.seek(0)
+    st.map(selected[["lat", "lon"]])
 
-        st.download_button(
-            "⬇️ Download Intersected Roads",
-            buffer,
-            file_name="intersected_roads.geojson",
-            mime="application/geo+json"
-        )
+    buffer = io.BytesIO()
+    selected.to_file(buffer, driver="GeoJSON")
+    buffer.seek(0)
 
-    except Exception as e:
-        st.error(f"❌ Error: {e}")
+    st.download_button(
+        "⬇️ Download Intersected Roads",
+        buffer,
+        file_name="intersected_roads.geojson",
+        mime="application/geo+json"
+    )
