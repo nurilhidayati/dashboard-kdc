@@ -34,35 +34,52 @@ def merge_linestrings(geojson_files):
 st.set_page_config(page_title="Merge GeoJSON LineStrings")
 st.title("🔗 Merge GeoJSON LineStrings")
 
+# Init session state
+if "geojson_bytes" not in st.session_state:
+    st.session_state.geojson_bytes = None
+if "final_name" not in st.session_state:
+    st.session_state.final_name = ""
+
 uploaded_files = st.file_uploader(
     "📤 Upload one or more GeoJSON files (LineString or MultiLineString)",
     type=["geojson"],
-    accept_multiple_files=True
+    accept_multiple_files=True,
+    key="uploader"
 )
 
-file_name_input = st.text_input("📝 Output filename (without .geojson):", value="merged_lines")
+file_name_input = st.text_input("📝 Output filename (without .geojson):", value="")
 
-if uploaded_files and st.button("🔄 Merge Now"):
-    with st.spinner("🔄 Processing..."):
-        merged_gdf = merge_linestrings(uploaded_files)
+if st.button("🔄 Merge Now"):
+    # Clear previous result first
+    st.session_state.geojson_bytes = None
+    st.session_state.final_name = ""
 
-        if merged_gdf is None or merged_gdf.empty:
-            st.warning("⚠️ No valid LineStrings found.")
-        else:
-            st.success("✅ Merge completed!")
+    if not uploaded_files:
+        st.warning("⚠️ Please upload at least one file first.")
+    elif not file_name_input.strip():
+        st.warning("⚠️ Please enter an output filename.")
+    else:
+        with st.spinner("🔄 Processing..."):
+            merged_gdf = merge_linestrings(uploaded_files)
 
-            # Convert to GeoJSON string
-            geojson_str = merged_gdf.to_json()
-            geojson_bytes = BytesIO(geojson_str.encode("utf-8"))
+            if merged_gdf is None or merged_gdf.empty:
+                st.warning("⚠️ No valid LineStrings found.")
+            else:
+                st.success("✅ Merge completed!")
 
-            final_name = file_name_input.strip() or "merged_lines"
-            if not final_name.lower().endswith(".geojson"):
-                final_name += ".geojson"
+                geojson_str = merged_gdf.to_json()
+                st.session_state.geojson_bytes = BytesIO(geojson_str.encode("utf-8"))
 
-            # Download button only
-            st.download_button(
-                label="📥 Download Merged GeoJSON",
-                data=geojson_bytes,
-                file_name=final_name,
-                mime="application/geo+json"
-            )
+                final_name = file_name_input.strip()
+                if not final_name.lower().endswith(".geojson"):
+                    final_name += ".geojson"
+                st.session_state.final_name = final_name
+
+# Show download button only when available
+if st.session_state.geojson_bytes:
+    st.download_button(
+        label="📥 Download Merged GeoJSON",
+        data=st.session_state.geojson_bytes,
+        file_name=st.session_state.final_name,
+        mime="application/geo+json"
+    )
