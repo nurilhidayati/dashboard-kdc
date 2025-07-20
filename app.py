@@ -13,7 +13,7 @@ st.markdown("""
 **Road Validation** is a geospatial web application built with Streamlit that helps mapping teams analyze and validate road segments against restricted areas. It automates filtering, transforming, and evaluating road data using OpenStreetMap (OSM) — reducing the need for manual GIS work and manual checking one by one per report.
 
 ---
-## ✨ Why Use Road Validation?
+### ✨ Why Use Road Validation?
 - 🧹 No more manual GIS work drama
 - 📌 Auto-detect restricted roads
 - 🧭 Improve accuracy using OSM references
