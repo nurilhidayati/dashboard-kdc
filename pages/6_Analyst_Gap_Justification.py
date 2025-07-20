@@ -70,7 +70,7 @@ if st.session_state.selected_roads is not None:
     selected = st.session_state.selected_roads.copy()
 
     if output_filename.strip() == "":
-        st.warning("⚠️ Silakan isi nama file output terlebih dahulu sebelum mengunduh.")
+        st.warning("⚠️ Kindly provide an output filename before downloading")
     else:
         if not output_filename.lower().endswith(".geojson"):
             output_filename += ".geojson"
