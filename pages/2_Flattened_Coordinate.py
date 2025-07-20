@@ -137,5 +137,3 @@ if uploaded_file:
             mime="text/csv",
             key="download-csv"
         )
-else:
-    st.info("📢 Please upload CSV data first.")
