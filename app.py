@@ -2,7 +2,6 @@ import streamlit as st
 
 st.set_page_config(
     page_title="Road Validation",
-    page_icon="🌍",
     initial_sidebar_state="expanded"
 )
 
