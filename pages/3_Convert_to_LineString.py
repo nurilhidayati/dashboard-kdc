@@ -4,8 +4,8 @@ import geopandas as gpd
 from shapely.geometry import LineString
 import io
 
-st.set_page_config(page_title="CSV to GeoJSON Converter", layout="centered")
-st.title("📍 CSV to LineString GeoJSON Converter")
+st.set_page_config(page_title="Convert CSV Points to GeoJSON LineString", layout="centered")
+st.title("Convert CSV Points to GeoJSON LineString")
 
 # --- Session State Setup ---
 if "geojson_data" not in st.session_state:

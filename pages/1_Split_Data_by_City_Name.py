@@ -7,7 +7,7 @@ def filter_by_city(df, city_name):
 def split_dataframe(df, chunk_size=5000):
     return [df[i:i+chunk_size] for i in range(0, len(df), chunk_size)]
 
-st.title("Split CSV by City Name")
+st.title("Split Data by City Name")
 
 # Upload + input
 uploaded_file = st.file_uploader("📤 Upload your CSV file", type=["csv"])
