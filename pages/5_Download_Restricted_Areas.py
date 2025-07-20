@@ -27,16 +27,30 @@ if "gdf_road" not in st.session_state:
 # Fungsi: Download area terbatas (Polygon)
 def download_restricted_areas(place):
     tags = {
-        "landuse": ["military", "industrial", "commercial", "government", "reservoir",
-                    "protected_area", "forest", "cemetery", "landfill"],
-        "access": ["private", "customers", "permit", "military", "no"],
-        "building": ["government", "warehouse", "military", "university"],
-        "barrier": ["fence", "wall", "gates", "bollard"],
-        "amenity": ["school", "college", "university", "police", "hospital", "kindergarten"],
-        "leisure": ["golf_course"],
-        "aeroway": ["airport"],
-        "tourism": ["forest"]
+    # Area penggunaan lahan yang sering terbatas aksesnya
+    "landuse": [
+        "military", "industrial", "commercial", "government", 
+        "cemetery", "landfill"
+    ],
+    
+    # Area dilindungi dan tempat umum yang dibatasi
+    "leisure": ["nature_reserve", "golf_course"],
+    "boundary": ["protected_area"],
+    "aeroway": ["aerodrome"],
+
+    # Bangunan penting dengan potensi akses terbatas
+    "building": ["military", "government", "warehouse", "university", "school", "hospital"],
+
+    # Fasilitas umum dengan potensi pembatasan akses
+    "amenity": ["school", "college", "university", "police", "hospital", "kindergarten"],
+    
+    # Pembatas fisik (opsional, bisa diambil terpisah)
+    "barrier": ["fence", "wall", "gate", "bollard"],
+    
+    # Pembatasan akses eksplisit
+    "access": ["private", "customers", "permit", "military", "no"]
     }
+
     gdf = ox.features.features_from_place(place, tags=tags)
     gdf = gdf[gdf.geometry.type.isin(["Polygon", "MultiPolygon"])]
     buffer = io.BytesIO()
@@ -47,10 +61,11 @@ def download_restricted_areas(place):
 # Fungsi: Download jalan terbatas (LineString)
 def download_restricted_roads(place):
     tags = {
-        "access": ["private", "no", "military", "customers", "permit"],
-        "highway": ["service"],
-        "barrier": ["gate", "fence", "bollard"],
-        "landuse": ["military", "industrial", "government"]
+    "highway": ["service", "unclassified", "residential", "track"],  # semua tipe jalan kecil
+    "access": ["private", "customers", "permit", "military", "no"],  # batasan akses
+    "motor_vehicle": ["private", "no"],  # pembatas kendaraan bermotor
+    "motorcar": ["private", "no"],
+    "service": ["driveway", "alley", "emergency_access"],  # biasanya restricted
     }
     gdf = ox.features.features_from_place(place, tags=tags)
     gdf = gdf[gdf.geometry.type.isin(["LineString", "MultiLineString"])]
