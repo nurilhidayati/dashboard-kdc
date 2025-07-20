@@ -45,7 +45,7 @@ if st.button("🚀 Process"):
                 filtered_df = filter_by_city(df, city_name)
                 st.session_state.filtered_df = filtered_df
                 st.session_state.city_name = city_name
-                st.session_state.processed = False
+                st.session_state.processed = True
 
 # Show download buttons only
 if st.session_state.processed and st.session_state.filtered_df is not None:
