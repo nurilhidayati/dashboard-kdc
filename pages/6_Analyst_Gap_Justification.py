@@ -32,6 +32,9 @@ uploaded_lines = st.file_uploader("📤 Upload Restricted Road (Linestring GeoJS
 if "selected_roads" not in st.session_state:
     st.session_state.selected_roads = None
 
+# Input nama file output
+output_filename = st.text_input("📝 Output filename (tanpa ekstensi .geojson)")
+
 # Tampilkan tombol proses hanya jika semua file wajib terisi
 if uploaded_roads and uploaded_polygons and uploaded_lines:
     if st.button("▶️ Process"):
@@ -49,17 +52,24 @@ if uploaded_roads and uploaded_polygons and uploaded_lines:
             st.error(f"❌ Error: {e}")
             st.session_state.selected_roads = None
 
-# Tampilkan tombol download jika data tersedia (tidak tampilkan peta)
+# Tampilkan tombol download jika data tersedia dan filename valid
 if st.session_state.selected_roads is not None:
     selected = st.session_state.selected_roads.copy()
 
-    buffer = io.BytesIO()
-    selected.to_file(buffer, driver="GeoJSON")
-    buffer.seek(0)
+    if output_filename.strip() == "":
+        st.warning("⚠️ Silakan isi nama file output terlebih dahulu sebelum mengunduh.")
+    else:
+        # Pastikan nama file punya ekstensi .geojson
+        if not output_filename.lower().endswith(".geojson"):
+            output_filename += ".geojson"
 
-    st.download_button(
-        "⬇️ Download Intersected Roads",
-        buffer,
-        file_name="intersected_roads.geojson",
-        mime="application/geo+json"
-    )
+        buffer = io.BytesIO()
+        selected.to_file(buffer, driver="GeoJSON")
+        buffer.seek(0)
+
+        st.download_button(
+            "⬇️ Download Intersected Roads",
+            buffer,
+            file_name=output_filename,
+            mime="application/geo+json"
+        )
