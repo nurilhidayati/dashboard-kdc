@@ -22,10 +22,10 @@ if st.button("🚀 Convert to GeoJSON"):
     st.session_state.geojson_data = None
     st.session_state.geojson_filename = None
 
-    if not file_name_input.strip():
-        st.warning("❗ Please enter output filename before downloading.")
-    elif uploaded_file is None:
+    if uploaded_file is None:
         st.warning("❗ Please upload a CSV file.")
+    elif not file_name_input.strip():
+        st.warning("❗ Please enter output filename before downloading.")
     else:
         try:
             df = pd.read_csv(uploaded_file)
