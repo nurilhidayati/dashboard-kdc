@@ -51,7 +51,7 @@ def download_restricted_roads(place):
     return gdf, buffer
 
 # 👉 Input nama file output
-area_filename = st.text_input("Filename for area (without .geojson)", value="restricted_areas")
+area_filename = st.text_input("Filename for area (without .geojson)", value="")
 
 # --- Tombol 1: Area ---
 if st.button("🔍 Download Restricted Areas (GeoJSON)"):
@@ -82,7 +82,7 @@ if st.session_state.show_area_download and st.session_state.buffer_area:
                        f"{area_filename}.geojson", "application/geo+json")
 
 
-road_filename = st.text_input("Filename for roads (without .geojson)", value="restricted_roads")
+road_filename = st.text_input("Filename for roads (without .geojson)", value="")
 
 # --- Tombol 2: Road ---
 if st.button("🚧 Download Restricted Roads (GeoJSON)"):
