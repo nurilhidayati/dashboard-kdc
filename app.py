@@ -1,22 +1,22 @@
 import streamlit as st
 
 st.set_page_config(
-    page_title="Analyst Gap Justification",
+    page_title="Road Validation",
     page_icon="🌍",
     initial_sidebar_state="expanded"
 )
 
-st.title("🛠️ Analyst Gap Justification")
+st.title("🛠️ Road Validation")
 
 st.markdown("""
 ### 🔍 Overview
 
-**Analyst Gap Justification** is a geospatial web application built with Streamlit that helps mapping teams analyze and validate road segments against restricted areas. It automates filtering, transforming, and evaluating road data using OpenStreetMap (OSM) — reducing the need for manual GIS work.
+**Road Validation** is a geospatial web application built with Streamlit that helps mapping teams analyze and validate road segments against restricted areas. It automates filtering, transforming, and evaluating road data using OpenStreetMap (OSM) — reducing the need for manual GIS work.
 
 ---
 
 ### 🎯 Purpose
-To improve the speed and accuracy of analyst gap justification by automating key spatial processes — from filtering to comparing — without relying on desktop GIS tools.
+To improve the speed and accuracy of road validation by automating key spatial processes — from filtering to comparing — without relying on desktop GIS tools.
 
 ---
 
@@ -72,7 +72,7 @@ In this step, the app automatically downloads restricted zones from OpenStreetMa
 ---
 
 **✅ Step 5: Analyst Gap Justification**  
-Now we check: do any roads **intersect** with restricted zones?
+Now we check and validate: do any roads **intersect** with restricted zones?
 
 **Why this matters:**  
 - Highlights road segments inside or near restricted areas  
