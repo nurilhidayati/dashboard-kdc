@@ -50,7 +50,11 @@ Dots A → B → C are just locations — but connecting them creates an actual 
 
 ---
 
-**✅ Step 4: Download Restricted Areas**  
+**✅ Step 4: Merge GeoJSON LineStrings**  
+This step is optional to use it only if your dataset was split into multiple files (e.g., 5000 rows per batch). If your data is in a single file, you can skip this step.
+---
+
+**✅ Step 5: Download Restricted Areas**  
 In this step, the app automatically downloads restricted zones from OpenStreetMap (OSM) based on specific tags.
 🏞️ Restricted Areas include:
 - Land use: military, industrial, commercial, cemetery, landfill
@@ -72,7 +76,7 @@ In this step, the app automatically downloads restricted zones from OpenStreetMa
 
 ---
 
-**✅ Step 5: Analyst Gap Justification**  
+**✅ Step 6: Analyst Gap Justification**  
 Now we check and validate: do any roads **intersect** with restricted zones?
 
 **Why this matters:**  
