@@ -17,7 +17,7 @@ download_option = st.radio(
     ("Download All in One File", "Download in Batches (5000 rows each)")
 )
 
-# Initialize session state variables
+# Initialize session state
 if "processed" not in st.session_state:
     st.session_state.processed = False
 if "filtered_df" not in st.session_state:
@@ -26,7 +26,7 @@ if "city_name" not in st.session_state:
     st.session_state.city_name = ""
 
 if st.button("🚀 Process"):
-    # Clear previous results
+    # Reset previous state
     st.session_state.processed = False
     st.session_state.filtered_df = None
     st.session_state.city_name = ""
@@ -47,31 +47,31 @@ if st.button("🚀 Process"):
                 st.session_state.city_name = city_name
                 st.session_state.processed = True
 
-# Render results if processed
+# Show download buttons only
 if st.session_state.processed and st.session_state.filtered_df is not None:
     filtered_df = st.session_state.filtered_df
     city_name = st.session_state.city_name
 
-    st.success(f"✅ Found {len(filtered_df)} rows for city: {city_name}")
-    st.dataframe(filtered_df)
-
     if len(filtered_df) == 0:
         st.warning("⚠️ No data found for the entered city name.")
-    elif download_option == "Download All in One File":
-        csv_data = filtered_df.to_csv(index=False).encode("utf-8")
-        st.download_button(
-            label=f"📥 Download Full {city_name} Data",
-            data=csv_data,
-            file_name=f"{city_name}_full_data.csv",
-            mime="text/csv"
-        )
     else:
-        chunks = split_dataframe(filtered_df, chunk_size=5000)
-        for i, chunk in enumerate(chunks, start=1):
-            csv_data = chunk.to_csv(index=False).encode("utf-8")
+        st.success(f"✅ {len(filtered_df)} rows found for city: {city_name}")
+
+        if download_option == "Download All in One File":
+            csv_data = filtered_df.to_csv(index=False).encode("utf-8")
             st.download_button(
-                label=f"📥 Download {city_name}_part{i}.csv ({len(chunk)} rows)",
+                label=f"📥 Download Full {city_name} Data",
                 data=csv_data,
-                file_name=f"{city_name}_data_part{i}.csv",
+                file_name=f"{city_name}_full_data.csv",
                 mime="text/csv"
             )
+        else:
+            chunks = split_dataframe(filtered_df, chunk_size=5000)
+            for i, chunk in enumerate(chunks, start=1):
+                csv_data = chunk.to_csv(index=False).encode("utf-8")
+                st.download_button(
+                    label=f"📥 Download {city_name}_part{i}.csv ({len(chunk)} rows)",
+                    data=csv_data,
+                    file_name=f"{city_name}_data_part{i}.csv",
+                    mime="text/csv"
+                )
