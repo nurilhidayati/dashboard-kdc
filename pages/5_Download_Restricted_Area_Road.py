@@ -3,7 +3,8 @@ import osmnx as ox
 import geopandas as gpd
 import io
 
-st.title("🗺️ Restricted Area & Road Downloader")
+st.title("🗺️ Download Restricted Area and Road")
+
 
 # 👉 Input nama wilayah
 place_name = st.text_input("Enter a place name", value="")
