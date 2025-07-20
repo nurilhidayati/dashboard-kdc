@@ -118,6 +118,7 @@ if uploaded_file:
             if not st.session_state.file_name_input.strip():
                 st.warning("❗ Please enter filename before processing.")
             else:
+                st.session_state.processed_data = None  # Hapus hasil download sebelumnya
                 flatten_coordinates_from_file(uploaded_file)
 
         st.markdown('</div>', unsafe_allow_html=True)
