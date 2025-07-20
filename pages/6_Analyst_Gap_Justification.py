@@ -35,9 +35,23 @@ if "selected_roads" not in st.session_state:
 # Input nama file output
 output_filename = st.text_input("📝 Output filename (tanpa ekstensi .geojson)")
 
-# Tampilkan tombol proses hanya jika semua file wajib terisi
-if uploaded_roads and uploaded_polygons and uploaded_lines:
-    if st.button("▶️ Process"):
+# Tombol selalu muncul
+process_clicked = st.button("▶️ Process")
+
+# Jika tombol diklik, cek kondisi upload
+if process_clicked:
+    missing = []
+    if not uploaded_roads:
+        missing.append("📂 Upload Road")
+    if not uploaded_polygons:
+        missing.append("📂 Upload Restricted Area")
+    if not uploaded_lines:
+        missing.append("📂 Upload Restricted Road")
+
+    if missing:
+        for msg in missing:
+            st.warning(f"⚠️ {msg} belum diupload.")
+    else:
         try:
             gdf_roads = gpd.read_file(uploaded_roads)
             gdf_polygons = gpd.read_file(uploaded_polygons)
@@ -47,7 +61,6 @@ if uploaded_roads and uploaded_polygons and uploaded_lines:
             selected = select_restricted_roads(gdf_roads, gdf_polygons, gdf_lines)
             st.session_state.selected_roads = selected
             st.success(f"✅ Found {len(selected)} intersecting roads.")
-
         except Exception as e:
             st.error(f"❌ Error: {e}")
             st.session_state.selected_roads = None
@@ -59,7 +72,6 @@ if st.session_state.selected_roads is not None:
     if output_filename.strip() == "":
         st.warning("⚠️ Silakan isi nama file output terlebih dahulu sebelum mengunduh.")
     else:
-        # Pastikan nama file punya ekstensi .geojson
         if not output_filename.lower().endswith(".geojson"):
             output_filename += ".geojson"
 
