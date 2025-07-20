@@ -19,7 +19,7 @@ download_option = st.radio(
 
 # Initialize session state
 if "processed" not in st.session_state:
-    st.session_state.processed = False
+    st.session_state.processed = True
 if "filtered_df" not in st.session_state:
     st.session_state.filtered_df = None
 if "city_name" not in st.session_state:
@@ -27,7 +27,7 @@ if "city_name" not in st.session_state:
 
 if st.button("🚀 Process"):
     # Reset previous state
-    st.session_state.processed = False
+    st.session_state.processed = True
     st.session_state.filtered_df = None
     st.session_state.city_name = ""
 
