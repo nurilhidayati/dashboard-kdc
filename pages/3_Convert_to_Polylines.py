@@ -12,15 +12,18 @@ if "geojson_data" not in st.session_state:
     st.session_state.geojson_data = None
 if "geojson_filename" not in st.session_state:
     st.session_state.geojson_filename = None
+if "geojson_ready" not in st.session_state:
+    st.session_state.geojson_ready = False  # Tambahan: flag sukses
 
 uploaded_file = st.file_uploader("Upload your flattened CSV file", type=["csv"])
 file_name_input = st.text_input("📝 Enter output file name (without .geojson):")
 
 # --- Convert Button ---
 if st.button("🚀 Convert to GeoJSON"):
-    # Clear old result first
+    # Clear previous result (selalu clear ketika tombol diklik)
     st.session_state.geojson_data = None
     st.session_state.geojson_filename = None
+    st.session_state.geojson_ready = False
 
     if uploaded_file is None:
         st.warning("❗ Please upload a CSV file.")
@@ -57,14 +60,13 @@ if st.button("🚀 Convert to GeoJSON"):
                 if not file_name_input.strip().lower().endswith(".geojson")
                 else file_name_input.strip()
             )
-
-            
+            st.session_state.geojson_ready = True  # Tandai sukses
 
         except Exception as e:
             st.error(f"❌ Error processing file: {e}")
 
 # --- Show Download Button If Available ---
-if st.session_state.geojson_data and st.session_state.geojson_filename:
+if st.session_state.geojson_ready and st.session_state.geojson_data and st.session_state.geojson_filename:
     st.success("✅ GeoJSON created successfully!")
     st.download_button(
         label="⬇️ Download GeoJSON",
