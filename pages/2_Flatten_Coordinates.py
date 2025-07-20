@@ -17,7 +17,7 @@ for key, default in {
     if key not in st.session_state:
         st.session_state[key] = default
 
-st.title("🗺️ Flatten Coordinates CSV")
+st.title("🗺️ Flatten Coordinates")
 
 uploaded_file = st.file_uploader("📂 Upload your CSV file", type=["csv"])
 
