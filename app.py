@@ -88,11 +88,5 @@ Now we check and validate: do any roads **intersect** with restricted zones?
 - Produces a clean GeoJSON output for further use
 
 
----
 
-### 💬 Contact & Credits
-
-📩 **Slack contact:** `nuril.hidayati`  
-👥 **Project Team:** ID Karta IoT – 2025  
-🙏 **Thanks to:** Qitfirul, Mahardi Pratomo, Annisa Dwi Maiikhsantiani, and Mochammad Fachri
 """)
