@@ -32,7 +32,7 @@ This step filters and extracts rows from the uploaded CSV file based on a specif
 Raw coordinate data looks like this:  
 `[[(104.75, -2.97), (104.76, -2.96)]]`  
 
-This format stores stores multiple coordinates in a single row, which makes the data hard to use. To make it easier, the coordinates are flattened — meaning each point is separated into its own row. This helps in drawing roads on the map, identifying missing or incorrect points, and preparing the data for further processing.
+This format stores multiple coordinates in a single row, which makes the data hard to use. To make it easier, the coordinates are flattened — meaning each point is separated into its own row. This helps in drawing roads on the map, identifying missing or incorrect points, and preparing the data for further processing.
 
 ---
 
@@ -58,13 +58,14 @@ This step is optional to use it only if your dataset was split into multiple fil
 
 **✅ Step 5: Download Restricted Areas**  
 In this step, the app automatically downloads restricted zones from OpenStreetMap (OSM) based on specific tags.
+
 🏞️ Restricted Areas include:
-- Land use: military, industrial, commercial, cemetery, landfill
+- Land use: military, industrial, commercial
 - Leisure: nature reserves, golf courses
 - Boundaries: protected areas
 - Airports: aerodromes
 - Buildings: schools, hospitals, warehouses, government/military buildings
-- Amenities: schools, universities, police stations, hospitals
+- Amenities: schools, universities,  hospitals, police stations
 - Barriers: fences, gates, walls
 - Access rules: private, permit-only, military areas
 

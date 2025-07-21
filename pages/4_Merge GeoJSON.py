@@ -32,7 +32,7 @@ def merge_linestrings(geojson_files):
 
 # UI
 st.set_page_config(page_title="Merge GeoJSON LineStrings")
-st.title("Merge GeoJSON LineStrings")
+st.title("Merge GeoJSON LineStrings (Optional)")
 
 # Init session state
 if "geojson_bytes" not in st.session_state:
@@ -41,7 +41,7 @@ if "final_name" not in st.session_state:
     st.session_state.final_name = ""
 
 uploaded_files = st.file_uploader(
-    "📤 Upload one or more GeoJSON files (LineString or MultiLineString)",
+    "📤 Upload one or more GeoJSON files",
     type=["geojson"],
     accept_multiple_files=True,
     key="uploader"
