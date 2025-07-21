@@ -1,10 +1,41 @@
 import streamlit as st
 from PIL import Image
+import base64
+from io import BytesIO
+
+# Helper: Convert image to base64 string
+def image_to_base64(img):
+    buffered = BytesIO()
+    img.save(buffered, format="PNG")
+    return base64.b64encode(buffered.getvalue()).decode()
+
+# Public Slack icon URL (white background)
+SLACK_ICON_URL = "https://upload.wikimedia.org/wikipedia/commons/7/76/Slack_Icon.png"
+
+# CSS for layout and icon
+st.markdown(f"""
+    <style>
+    .profile-container {{
+        text-align: center;
+        margin-bottom: 20px;
+    }}
+    .profile-container img.profile {{
+        border-radius: 15px;
+        object-fit: cover;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }}
+    .slack-icon {{
+        height: 16px;
+        vertical-align: middle;
+        margin-right: 4px;
+    }}
+    </style>
+""", unsafe_allow_html=True)
 
 st.title("About Us")
 st.subheader("Meet the Team")
 
-# Sample team members
+# Team members
 team_members = [
     {
         "name": "Nuril Hidayati",
@@ -26,6 +57,7 @@ team_members = [
     },
 ]
 
+# Mentors
 mentors = [
     {
         "name": "Qitfirul",
@@ -41,24 +73,40 @@ mentors = [
     },
 ]
 
-# Display team members
+# Display Core Team
 st.markdown("### 👩‍💻 Core Team")
 cols = st.columns(len(team_members))
 for col, member in zip(cols, team_members):
     with col:
-        st.image(member["photo"], width=150)
-        st.markdown(f"**{member['name']}**")
-        st.markdown(f"💬 [{member['username']}]({member['slack']})")
+        img_b64 = image_to_base64(member["photo"])
+        st.markdown(f"""
+            <div class="profile-container">
+                <img class="profile" src="data:image/png;base64,{img_b64}" width="200"><br>
+                <strong>{member['name']}</strong><br>
+                <a href="{member['slack']}" target="_blank">
+                    <img class="slack-icon" src="{SLACK_ICON_URL}" />
+                    {member['username']}
+                </a>
+            </div>
+        """, unsafe_allow_html=True)
 
-# Display mentors centered
+# Display Mentors Centered
 st.markdown("### 👨‍🏫 Mentors")
-col1, col2, col3, col4, col5 = st.columns([1, 2, 2, 2, 1])
+col1, col2, col3, col4, col5 = st.columns([1, 2, 1, 2, 1])
 for col, mentor in zip([col2, col4], mentors):
     with col:
-        st.image(mentor["photo"], width=150)
-        st.markdown(f"**{mentor['name']}**")
-        st.markdown(f"💬 [{mentor['username']}]({mentor['slack']})")
+        img_b64 = image_to_base64(mentor["photo"])
+        st.markdown(f"""
+            <div class="profile-container">
+                <img class="profile" src="data:image/png;base64,{img_b64}" width="200"><br>
+                <strong>{mentor['name']}</strong><br>
+                <a href="{mentor['slack']}" target="_blank">
+                    <img class="slack-icon" src="{SLACK_ICON_URL}" />
+                    {mentor['username']}
+                </a>
+            </div>
+        """, unsafe_allow_html=True)
 
-# Documentation section
+# Documentation
 st.subheader("📘 Documentation")
 st.write("Here’s the guideline to help you understand and work on the project smoothly!")
