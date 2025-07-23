@@ -27,9 +27,9 @@ def download_restricted_areas(place):
     }
 
     gdf = ox.features.features_from_place(place, tags=tags)
-    gdf = gdf[gdf.geometry.type.isin(["Polygon", "MultiPolygon"])]
+    gdf = gdf[gdf.geometry.geom_type.isin(["Polygon", "MultiPolygon"])]
     buffer = io.BytesIO()
-    gdf.to_file(buffer, driver="GeoJSON")
+    gdf.to_file(buffer, driver="GeoJSON", index=False)  # Hindari warning fitur ID
     buffer.seek(0)
     return gdf, buffer
 
@@ -43,9 +43,9 @@ def download_restricted_roads(place):
     }
 
     gdf = ox.features.features_from_place(place, tags=tags)
-    gdf = gdf[gdf.geometry.type.isin(["LineString", "MultiLineString"])]
+    gdf = gdf[gdf.geometry.geom_type.isin(["LineString", "MultiLineString"])]
     buffer = io.BytesIO()
-    gdf.to_file(buffer, driver="GeoJSON")
+    gdf.to_file(buffer, driver="GeoJSON", index=False)  # Hindari warning fitur ID
     buffer.seek(0)
     return gdf, buffer
 
@@ -61,7 +61,6 @@ if st.button("🔍 Download Restricted Areas (GeoJSON)"):
     else:
         try:
             st.info("Fetching restricted areas...")
-            # Reset data sebelumnya
             st.session_state.gdf_area = None
             st.session_state.buffer_area = None
             st.session_state.show_area_download = False
@@ -75,12 +74,11 @@ if st.button("🔍 Download Restricted Areas (GeoJSON)"):
             st.error(f"❌ Error: {e}")
             st.session_state.show_area_download = False
 
-# Tampilkan tombol download jika tersedia
 if st.session_state.show_area_download and st.session_state.buffer_area:
     st.download_button("⬇️ Download Areas", st.session_state.buffer_area,
                        f"{area_filename}.geojson", "application/geo+json")
 
-
+# Filename untuk jalan
 road_filename = st.text_input("Filename for roads (without .geojson)", value="")
 
 # --- Tombol 2: Road ---
@@ -92,7 +90,6 @@ if st.button("🚧 Download Restricted Roads (GeoJSON)"):
     else:
         try:
             st.info("Fetching restricted roads...")
-            # Reset data sebelumnya
             st.session_state.gdf_road = None
             st.session_state.buffer_road = None
             st.session_state.show_road_download = False
@@ -106,11 +103,9 @@ if st.button("🚧 Download Restricted Roads (GeoJSON)"):
             st.error(f"❌ Error: {e}")
             st.session_state.show_road_download = False
 
-# Tampilkan tombol download jika tersedia
 if st.session_state.show_road_download and st.session_state.buffer_road:
     st.download_button("⬇️ Download Roads", st.session_state.buffer_road,
                        f"{road_filename}.geojson", "application/geo+json")
-
 
 # Footer
 st.markdown(
