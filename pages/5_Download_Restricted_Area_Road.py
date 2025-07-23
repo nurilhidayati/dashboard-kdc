@@ -2,26 +2,32 @@ import streamlit as st
 import osmnx as ox
 import geopandas as gpd
 import io
-from shapely.geometry import box
+import time
+from shapely.geometry import Polygon
 
-st.title("Download Restricted Area and Restricted Road (Offline Mode)")
+st.title("Download Restricted Area and Road")
 
-# Input manual koordinat bounding box
-st.markdown("### 📍 Define bounding box")
-minx = st.number_input("Min Longitude", value=104.70)
-miny = st.number_input("Min Latitude", value=-3.05)
-maxx = st.number_input("Max Longitude", value=104.83)
-maxy = st.number_input("Max Latitude", value=-2.90)
-
-bbox_polygon = box(minx, miny, maxx, maxy)
+# 👉 Input nama wilayah
+place_name = st.text_input("Enter a place name, e.g., Palembang, Indonesia", value="")
 
 # Inisialisasi session state
 for key in ["show_area_download", "buffer_area", "gdf_area", "show_road_download", "buffer_road", "gdf_road"]:
     if key not in st.session_state:
         st.session_state[key] = None
 
+# Helper: safe geocode
+def safe_geocode(place, retries=3, delay=2):
+    for i in range(retries):
+        try:
+            return ox.geocoder.geocode_to_gdf(place)
+        except Exception as e:
+            if i < retries - 1:
+                time.sleep(delay)
+            else:
+                raise e
+
 # Fungsi: Download area terbatas
-def download_restricted_areas(polygon):
+def download_restricted_areas(place):
     tags = {
         "landuse": ["military", "industrial", "commercial", "government", "cemetery", "landfill"],
         "leisure": ["nature_reserve", "golf_course"],
@@ -33,6 +39,8 @@ def download_restricted_areas(polygon):
         "access": ["private", "customers", "permit", "military", "no"]
     }
 
+    gdf_place = safe_geocode(place)
+    polygon = gdf_place.geometry.iloc[0]
     gdf = ox.features.features_from_polygon(polygon, tags=tags)
     gdf = gdf[gdf.geometry.geom_type.isin(["Polygon", "MultiPolygon"])]
     buffer = io.BytesIO()
@@ -41,7 +49,7 @@ def download_restricted_areas(polygon):
     return gdf, buffer
 
 # Fungsi: Download jalan terbatas
-def download_restricted_roads(polygon):
+def download_restricted_roads(place):
     tags = {
         "highway": ["service", "unclassified", "track"],
         "access": ["private", "customers", "permit", "military", "no"],
@@ -49,6 +57,8 @@ def download_restricted_roads(polygon):
         "service": ["driveway", "alley", "emergency_access"],
     }
 
+    gdf_place = safe_geocode(place)
+    polygon = gdf_place.geometry.iloc[0]
     gdf = ox.features.features_from_polygon(polygon, tags=tags)
     gdf = gdf[gdf.geometry.geom_type.isin(["LineString", "MultiLineString"])]
     buffer = io.BytesIO()
@@ -56,37 +66,49 @@ def download_restricted_roads(polygon):
     buffer.seek(0)
     return gdf, buffer
 
-# Input nama file
+# 👉 Input nama file output
 area_filename = st.text_input("Filename for area (without .geojson)", value="restricted_area")
 road_filename = st.text_input("Filename for road (without .geojson)", value="restricted_road")
 
-# Tombol 1
+# --- Tombol Area ---
 if st.button("🔍 Download Restricted Areas (GeoJSON)"):
-    try:
-        st.info("Fetching restricted areas...")
-        gdf_area, buffer_area = download_restricted_areas(bbox_polygon)
-        st.session_state.gdf_area = gdf_area
-        st.session_state.buffer_area = buffer_area
-        st.session_state.show_area_download = True
-        st.success(f"✅ {len(gdf_area)} restricted areas found")
-    except Exception as e:
-        st.error(f"❌ Error: {e}")
+    if not place_name.strip():
+        st.warning("⚠️ Please enter a place name.")
+    elif not area_filename.strip():
+        st.warning("⚠️ Please enter a filename for the area.")
+    else:
+        try:
+            st.info("Fetching restricted areas...")
+            gdf_area, buffer_area = download_restricted_areas(place_name)
+            st.session_state.gdf_area = gdf_area
+            st.session_state.buffer_area = buffer_area
+            st.session_state.show_area_download = True
+            st.success(f"✅ {len(gdf_area)} restricted areas found")
+        except Exception as e:
+            st.error(f"❌ Geocoding failed: {e}")
+            st.session_state.show_area_download = False
 
 if st.session_state.show_area_download and st.session_state.buffer_area:
     st.download_button("⬇️ Download Areas", st.session_state.buffer_area,
                        f"{area_filename}.geojson", "application/geo+json")
 
-# Tombol 2
+# --- Tombol Jalan ---
 if st.button("🚧 Download Restricted Roads (GeoJSON)"):
-    try:
-        st.info("Fetching restricted roads...")
-        gdf_road, buffer_road = download_restricted_roads(bbox_polygon)
-        st.session_state.gdf_road = gdf_road
-        st.session_state.buffer_road = buffer_road
-        st.session_state.show_road_download = True
-        st.success(f"✅ {len(gdf_road)} restricted roads found")
-    except Exception as e:
-        st.error(f"❌ Error: {e}")
+    if not place_name.strip():
+        st.warning("⚠️ Please enter a place name.")
+    elif not road_filename.strip():
+        st.warning("⚠️ Please enter a filename for the roads.")
+    else:
+        try:
+            st.info("Fetching restricted roads...")
+            gdf_road, buffer_road = download_restricted_roads(place_name)
+            st.session_state.gdf_road = gdf_road
+            st.session_state.buffer_road = buffer_road
+            st.session_state.show_road_download = True
+            st.success(f"✅ {len(gdf_road)} restricted roads found")
+        except Exception as e:
+            st.error(f"❌ Geocoding failed: {e}")
+            st.session_state.show_road_download = False
 
 if st.session_state.show_road_download and st.session_state.buffer_road:
     st.download_button("⬇️ Download Roads", st.session_state.buffer_road,
