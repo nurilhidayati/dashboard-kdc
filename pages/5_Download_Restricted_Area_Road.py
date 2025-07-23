@@ -2,6 +2,7 @@ import streamlit as st
 import osmnx as ox
 import geopandas as gpd
 import io
+from osmnx.geocoder import geocode_to_gdf
 
 st.title("Download Restricted Area and Restricted Road")
 
@@ -26,14 +27,17 @@ def download_restricted_areas(place):
         "access": ["private", "customers", "permit", "military", "no"]
     }
 
-    gdf = ox.features.features_from_place(place, tags=tags)
+    # Ganti bagian ini
+    place_polygon = geocode_to_gdf(place).geometry.iloc[0]
+    gdf = ox.features.features_from_polygon(place_polygon, tags=tags)
+
     gdf = gdf[gdf.geometry.geom_type.isin(["Polygon", "MultiPolygon"])]
     buffer = io.BytesIO()
-    gdf.to_file(buffer, driver="GeoJSON", index=False)  # Hindari warning fitur ID
+    gdf.to_file(buffer, driver="GeoJSON", index=False)
     buffer.seek(0)
     return gdf, buffer
 
-# Fungsi: Download jalan terbatas (LineString)
+
 def download_restricted_roads(place):
     tags = {
         "highway": ["service", "unclassified", "track"],
@@ -42,13 +46,15 @@ def download_restricted_roads(place):
         "service": ["driveway", "alley", "emergency_access"],
     }
 
-    gdf = ox.features.features_from_place(place, tags=tags)
+    # Ganti bagian ini
+    place_polygon = geocode_to_gdf(place).geometry.iloc[0]
+    gdf = ox.features.features_from_polygon(place_polygon, tags=tags)
+
     gdf = gdf[gdf.geometry.geom_type.isin(["LineString", "MultiLineString"])]
     buffer = io.BytesIO()
-    gdf.to_file(buffer, driver="GeoJSON", index=False)  # Hindari warning fitur ID
+    gdf.to_file(buffer, driver="GeoJSON", index=False)
     buffer.seek(0)
     return gdf, buffer
-
 # 👉 Input nama file output
 area_filename = st.text_input("Filename for area (without .geojson)", value="")
 
