@@ -72,3 +72,15 @@ if st.session_state.get("processed", False):
                 file_name=f"{city_name}_data_part{i}.csv",
                 mime="text/csv"
             )
+
+
+# Footer
+st.markdown(
+    """
+    <hr style="margin-top: 2rem; margin-bottom: 1rem;">
+    <div style='text-align: center; color: grey; font-size: 0.9rem;'>
+        © 2025 ID Karta IoT Team
+    </div>
+    """,
+    unsafe_allow_html=True
+)
